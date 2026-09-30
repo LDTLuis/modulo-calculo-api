@@ -4,6 +4,8 @@ Motor de cálculo DAMIQ **1.0.0** · contrato JSON **1.0** · gerado a partir de
 
 ## 1. Visão geral
 
+> **Terminologia:** *instrumento* é o ponto de medição instalado na barragem (piezômetro, régua de nível, medidor de vazão, marco de deslocamento). Ele é lido pelo técnico de campo, e as leituras são digitadas ou importadas: não há sensores automáticos. No JSON, os campos mantêm os nomes do contrato 1.0: `sensor` (na medição), `sensores` (na configuração) e `sensor_travado` (detecção de valor repetido).
+
 A Central é a **dona dos parâmetros** de monitoramento e dos critérios dos cálculos. Ela publica a configuração, o Desktop guarda a última versão válida (SQLite) e a envia ao motor em toda chamada. O motor não guarda estado e devolve `versao_config` em cada resposta, para que o log registre qual versão gerou cada resultado (RF-12).
 
 ```
@@ -13,9 +15,9 @@ Central Web ──REST/JSON──▶ Desktop ──validar_configuracao──▶
 
 | Quem cadastra | O quê |
 |---|---|
-| Técnico | Tipo, faixa plausível (ficha do instrumento) e frequência de leitura de cada sensor |
+| Técnico | Tipo, faixa plausível (ficha do instrumento) e frequência de leitura de cada instrumento |
 | Engenheiro | Limites de alerta, taxa de variação e critérios dos cálculos (`limites_calculo`) |
-| Administrador | Parâmetros gerais (fuso, tolerâncias, detecção de anomalia e de sensor travado) |
+| Administrador | Parâmetros gerais (fuso, tolerâncias, detecção de anomalia e de instrumento travado) |
 
 > **Faixa plausível ≠ limite de alerta.** A faixa descreve o que o **instrumento** mede: fora dela, a leitura é mantida e marcada como suspeita (qualidade de dados). Os limites de alerta descrevem a **segurança da barragem** e geram alertas de Aviso/Alerta/Crítico. Não misture os dois num mesmo campo da tela.
 
@@ -29,12 +31,12 @@ configuracao
 ├── padroes_por_tipo
 │   └── <tipo>                  faixa, frequencia_esperada_s
 ├── sensores
-│   └── <id do sensor>          tipo, faixa, frequencia_esperada_s, limites_alerta, taxa_variacao
-├── monitoramento              anomalia, sensor_travado
-└── limites_calculo            critérios dos cálculos (FS mínimos etc.)
+│   └── <id do instrumento>     tipo, faixa, frequencia_esperada_s, limites_alerta, taxa_variacao
+├── monitoramento               anomalia, sensor_travado
+└── limites_calculo             critérios dos cálculos (FS mínimos etc.)
 ```
 
-**Prioridade:** o valor do sensor vale primeiro; se não houver, vale o de `padroes_por_tipo`; por último, o padrão do motor.
+**Prioridade:** o valor do instrumento vale primeiro; se não houver, vale o de `padroes_por_tipo`; por último, o padrão do motor.
 
 ## 3. Campos
 
@@ -45,8 +47,8 @@ configuracao
 | `versao` | texto ou inteiro | **sim** | — | não vazio | Revisão da configuração; devolvida em versao_config. |
 | `fuso_padrao` | texto | não | `"-03:00"` | formato `^[+-]\d{2}:\d{2}$` | Offset aplicado a timestamps de medição sem fuso (ex.: "-03:00"). Nomes de fuso não são aceitos. |
 | `medicoes` | objeto | não | — | — | Parâmetros gerais de validação das medições (M1). |
-| `padroes_por_tipo` | mapa (chave → objeto) | não | — | chaves: `nivel` · `pressao` · `vazao` · `deslocamento` | Valores padrão por tipo de medição (chave: nivel, pressao, vazao ou deslocamento), usados pelos sensores sem valor próprio. |
-| `sensores` | mapa (chave → objeto) | não | — | — | Cadastro por instrumento; a chave é o identificador do sensor, igual ao campo `sensor` das medições. |
+| `padroes_por_tipo` | mapa (chave → objeto) | não | — | chaves: `nivel` · `pressao` · `vazao` · `deslocamento` | Valores padrão por tipo de medição (chave: nivel, pressao, vazao ou deslocamento), usados pelos instrumentos sem valor próprio. |
+| `sensores` | mapa (chave → objeto) | não | — | — | Cadastro por instrumento; a chave é o identificador do instrumento, igual ao campo `sensor` das medições. |
 | `monitoramento` | objeto | não | — | — | Parâmetros gerais das regras de qualidade de dados (M2). |
 | `limites_calculo` | objeto | não | — | — | Critérios de aceitação dos cálculos (M4+). |
 | `barragem_parametros` | — | não | — | — | Reservado (M3–M7); aceito e ainda não usado. |
@@ -57,7 +59,7 @@ configuracao
 | Campo | Tipo | Obrigatório | Padrão | Regras | Descrição |
 |---|---|---|---|---|---|
 | `tolerancia_futuro_s` | número | não | `300` | ≥ 0 | Folga, em segundos, para aceitar leituras com horário à frente do relógio (coletores dessincronizados). |
-| `fator_tolerancia_lacuna` | número | não | `1.5` | ≥ 1 | Há lacuna quando o intervalo entre leituras de um sensor passa de frequência esperada × fator. |
+| `fator_tolerancia_lacuna` | número | não | `1.5` | ≥ 1 | Há lacuna quando o intervalo entre leituras de um instrumento passa de frequência esperada × fator. |
 
 ### 3.3 `padroes_por_tipo.<tipo>`
 
@@ -66,13 +68,13 @@ configuracao
 | `faixa` | objeto *faixa* (§3.5) | não | — | — | Faixa plausível padrão do tipo. |
 | `frequencia_esperada_s` | número | não | — | > 0 | Intervalo esperado entre leituras, em segundos (detecção de lacunas). |
 
-### 3.4 `sensores.<id>` — sensor
+### 3.4 `sensores.<id>` — instrumento
 
 | Campo | Tipo | Obrigatório | Padrão | Regras | Descrição |
 |---|---|---|---|---|---|
-| `tipo` | texto: `nivel` · `pressao` · `vazao` · `deslocamento` | **sim** | — | — | Tipo cadastrado; leituras desse sensor com outro tipo são rejeitadas (TIPO_DIVERGENTE). |
+| `tipo` | texto: `nivel` · `pressao` · `vazao` · `deslocamento` | **sim** | — | — | Tipo cadastrado; leituras desse instrumento com outro tipo são rejeitadas (TIPO_DIVERGENTE). |
 | `faixa` | objeto *faixa* (§3.5) | não | — | — | Faixa plausível do instrumento (ficha técnica). Fora dela, a leitura é mantida com a flag FORA_FAIXA_PLAUSIVEL. |
-| `frequencia_esperada_s` | número | não | — | > 0 | Intervalo esperado entre leituras deste sensor, em segundos; prevalece sobre o padrão do tipo. |
+| `frequencia_esperada_s` | número | não | — | > 0 | Intervalo esperado entre leituras deste instrumento, em segundos; prevalece sobre o padrão do tipo. |
 | `limites_alerta` | objeto | não | — | informe ao menos um: `acima`, `abaixo` | Limites de engenharia (RF-06), cadastrados pelo engenheiro; geram alertas de SEGURANCA. |
 | `taxa_variacao` | objeto | não | — | informe ao menos um: `aviso`, `alerta`, `critico` | Velocidade máxima de variação entre leituras consecutivas (ex.: rebaixamento rápido do NA). |
 | `cota_instalacao_m` | número | não | — | — | Reservado (M3); aceito e ainda não usado. |
@@ -83,7 +85,7 @@ configuracao
 |---|---|---|---|---|---|
 | `min` | número ou null | não | — | — | Limite inferior (null = aberto). |
 | `max` | número ou null | não | — | — | Limite superior (null = aberto). |
-| `unidade` | texto: unidade compatível com o tipo do sensor (§4) | não | — | — | Unidade de min/max; compatível com o tipo do sensor. Padrão: unidade canônica do tipo. |
+| `unidade` | texto: unidade compatível com o tipo do instrumento (§4) | não | — | — | Unidade de min/max; compatível com o tipo do instrumento. Padrão: unidade canônica do tipo. |
 
 Regras: informe ao menos um: `min`, `max`; **min ≤ max**.
 
@@ -91,7 +93,7 @@ Regras: informe ao menos um: `min`, `max`; **min ≤ max**.
 
 | Campo | Tipo | Obrigatório | Padrão | Regras | Descrição |
 |---|---|---|---|---|---|
-| `unidade` | texto: unidade compatível com o tipo do sensor (§4) | não | — | — | Unidade dos níveis; padrão: unidade canônica do tipo. |
+| `unidade` | texto: unidade compatível com o tipo do instrumento (§4) | não | — | — | Unidade dos níveis; padrão: unidade canônica do tipo. |
 | `acima` | objeto *níveis* (§3.7) | não | — | — | Aciona quando o valor é ≥ nível. Ordem: aviso ≤ alerta ≤ critico. |
 | `abaixo` | objeto *níveis* (§3.7) | não | — | — | Aciona quando o valor é ≤ nível. Ordem: aviso ≥ alerta ≥ critico. |
 
@@ -111,7 +113,7 @@ Regras: ao menos um nível; em `acima`, **aviso ≤ alerta ≤ critico**; em `ab
 
 | Campo | Tipo | Obrigatório | Padrão | Regras | Descrição |
 |---|---|---|---|---|---|
-| `unidade` | texto: unidade compatível com o tipo do sensor (§4) | não | — | — | Unidade da variação; padrão: unidade canônica do tipo. |
+| `unidade` | texto: unidade compatível com o tipo do instrumento (§4) | não | — | — | Unidade da variação; padrão: unidade canônica do tipo. |
 | `intervalo_s` | número | não | `86400` | > 0 | Intervalo de referência da taxa, em segundos (86400 = por dia). |
 | `direcao` | texto: `subida` · `descida` · `ambas` | não | `"ambas"` | — | Sentido avaliado: subida, descida ou ambas. |
 | `aviso` | número | não | — | > 0 | Variação no intervalo que aciona AVISO. |
@@ -133,12 +135,12 @@ Regras: informe ao menos um: `aviso`, `alerta`, `critico`; níveis positivos e *
 
 | Campo | Tipo | Obrigatório | Padrão | Regras | Descrição |
 |---|---|---|---|---|---|
-| `ativo` | booleano | não | false | — | Liga a detecção de sensor travado. |
+| `ativo` | booleano | não | false | — | Liga a detecção de instrumento travado. |
 | `leituras_consecutivas` | inteiro | não | `12` | ≥ 2 | Quantidade de valores idênticos seguidos para acionar. |
 
 ## 4. Unidades aceitas
 
-Toda faixa, limite e taxa aceita `unidade`. O motor converte para a unidade canônica do tipo do sensor. Uma unidade de outra dimensão (ex.: `kPa` num sensor de nível) é recusada.
+Toda faixa, limite e taxa aceita `unidade`. O motor converte para a unidade canônica do tipo do instrumento. Uma unidade de outra dimensão (ex.: `kPa` num instrumento de nível) é recusada.
 
 | Tipo | Unidade canônica | Unidades aceitas |
 |---|---|---|
@@ -182,7 +184,7 @@ Estas regras envolvem mais de um campo. A tela da Central deve validá-las, e o 
 | `acima`: aviso ≤ alerta ≤ critico · `abaixo`: aviso ≥ alerta ≥ critico | `limites_alerta` |
 | Níveis positivos e crescentes | `taxa_variacao` |
 | `minimo_leituras ≤ janela_leituras` | `monitoramento.anomalia` |
-| `unidade` compatível com o `tipo` do sensor (§4) | `faixa`, `limites_alerta`, `taxa_variacao` |
+| `unidade` compatível com o `tipo` do instrumento (§4) | `faixa`, `limites_alerta`, `taxa_variacao` |
 | Em `padroes_por_tipo`, a unidade da faixa segue o tipo da chave | `padroes_por_tipo.<tipo>.faixa` |
 
 ## 7. Exemplo completo
@@ -322,7 +324,7 @@ Configuração inválida (ex.: `faixa` com min 5 e max 1): saída 1, `status: "E
 - **Padrões:** os campos `default` do schema são os padrões do motor. A tela pode exibi-los como sugestão; não é preciso enviá-los.
 - **Versão:** incremente `versao` a cada publicação (texto ou inteiro). Ela volta em `versao_config` nas respostas do motor e permite rastrear resultados e alertas até a configuração que os gerou.
 - **Nomes de critérios:** a lista de `limites_calculo` (§5) vem do catálogo de cálculos. Novos critérios podem surgir em versões 1.x do motor; atualize a tela a partir do schema da versão em uso.
-- **Campos reservados:** `cota_instalacao_m` (sensor), `barragem_parametros` e `classificacao` são aceitos, mas ainda não têm efeito no motor 1.0.
+- **Campos reservados:** `cota_instalacao_m` (instrumento), `barragem_parametros` e `classificacao` são aceitos, mas ainda não têm efeito no motor 1.0.
 
 <div class="quebra"></div>
 
@@ -366,7 +368,7 @@ Configuração inválida (ex.: `faixa` com min 5 e max 1): saída 1, `status: "E
           "type": "number",
           "minimum": 1,
           "default": 1.5,
-          "description": "Há lacuna quando o intervalo entre leituras de um sensor passa de frequência esperada × fator."
+          "description": "Há lacuna quando o intervalo entre leituras de um instrumento passa de frequência esperada × fator."
         }
       },
       "additionalProperties": false,
@@ -397,14 +399,14 @@ Configuração inválida (ex.: `faixa` com min 5 e max 1): saída 1, `status: "E
         },
         "additionalProperties": false
       },
-      "description": "Valores padrão por tipo de medição (chave: nivel, pressao, vazao ou deslocamento), usados pelos sensores sem valor próprio."
+      "description": "Valores padrão por tipo de medição (chave: nivel, pressao, vazao ou deslocamento), usados pelos instrumentos sem valor próprio."
     },
     "sensores": {
       "type": "object",
       "additionalProperties": {
         "$ref": "#/$defs/sensor"
       },
-      "description": "Cadastro por instrumento; a chave é o identificador do sensor, igual ao campo `sensor` das medições."
+      "description": "Cadastro por instrumento; a chave é o identificador do instrumento, igual ao campo `sensor` das medições."
     },
     "monitoramento": {
       "type": "object",
@@ -445,7 +447,7 @@ Configuração inválida (ex.: `faixa` com min 5 e max 1): saída 1, `status: "E
             "ativo": {
               "type": "boolean",
               "default": false,
-              "description": "Liga a detecção de sensor travado."
+              "description": "Liga a detecção de instrumento travado."
             },
             "leituras_consecutivas": {
               "type": "integer",
@@ -657,7 +659,7 @@ Configuração inválida (ex.: `faixa` com min 5 e max 1): saída 1, `status: "E
             "mm",
             "psi"
           ],
-          "description": "Unidade de min/max; compatível com o tipo do sensor. Padrão: unidade canônica do tipo."
+          "description": "Unidade de min/max; compatível com o tipo do instrumento. Padrão: unidade canônica do tipo."
         }
       },
       "additionalProperties": false,
@@ -714,7 +716,7 @@ Configuração inválida (ex.: `faixa` com min 5 e max 1): saída 1, `status: "E
             "vazao",
             "deslocamento"
           ],
-          "description": "Tipo cadastrado; leituras desse sensor com outro tipo são rejeitadas (TIPO_DIVERGENTE)."
+          "description": "Tipo cadastrado; leituras desse instrumento com outro tipo são rejeitadas (TIPO_DIVERGENTE)."
         },
         "faixa": {
           "$ref": "#/$defs/faixa",
@@ -723,7 +725,7 @@ Configuração inválida (ex.: `faixa` com min 5 e max 1): saída 1, `status: "E
         "frequencia_esperada_s": {
           "type": "number",
           "exclusiveMinimum": 0,
-          "description": "Intervalo esperado entre leituras deste sensor, em segundos; prevalece sobre o padrão do tipo."
+          "description": "Intervalo esperado entre leituras deste instrumento, em segundos; prevalece sobre o padrão do tipo."
         },
         "limites_alerta": {
           "type": "object",

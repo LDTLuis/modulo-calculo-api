@@ -8,6 +8,9 @@ Versão 1.0 · 30/09/2026 · módulos M0–M11 implementados (repositório `LDTL
 - **[REQ]** Documento de Requisitos DAMIQ v1.0
 - **[LIT]** Literatura técnica fora do material do professor. Esses cálculos ficam marcados como opcionais.
 
+
+> **Terminologia:** *instrumento* é o ponto de medição instalado na barragem (piezômetro, régua de nível, medidor de vazão, marco de deslocamento). Ele é lido pelo técnico de campo, e as leituras são digitadas ou importadas: não há sensores automáticos. No JSON, os campos mantêm os nomes do contrato 1.0: `sensor` (na medição), `sensores` (na configuração) e `sensor_travado` (detecção de valor repetido).
+
 **Prioridade:**
 - **P1:** MVP, exigido pelo RF-04 e RF-06
 - **P2:** 2ª entrega
@@ -59,7 +62,7 @@ damiq_calc/
 | M7 Geometria | `geometria` | `secao_macico`, `volume_terra`, `borda_livre` | 11 |
 | M8 Classificação | `classificacao` | `enquadramento_pnsb`, `risco` | 29 |
 | M9 Emergência | `emergencia` | `nivel_resposta`, `zas`; nível de resposta também no `processar_lote` | 13 |
-| M10 Gráficos | `graficos` | `opcoes.graficos`: série temporal por sensor e curva cota–área–volume | 11 |
+| M10 Gráficos | `graficos` | `opcoes.graficos`: série temporal por instrumento e curva cota–área–volume | 11 |
 | M11 Opcionais [LIT] | `opcionais` | `vertedor_retangular`, `vertedor_triangular`, `evapotranspiracao_fao56`, `balanco_hidrico`, `pico_ruptura_froehlich` | 7 |
 | Contrato / CLI | `adapters` | `info`, `listar_calculos`, `calcular`, `processar_lote`, seção `configuracao` | 51 |
 
@@ -89,20 +92,20 @@ Fonte: [REQ RF-03, RF-04], R-01.
 
 | Cálculo | Regra | Entradas | Saídas |
 |---|---|---|---|
-| Validação de esquema | Obrigatórios: timestamp, tipo ∈ {nível, pressão, vazão, deslocamento}, valor, unidade, sensor | Lote CSV/XLSX já parseado | Registros válidos e lista de rejeições com motivo |
+| Validação de esquema | Obrigatórios: timestamp, tipo ∈ {nível, pressão, vazão, deslocamento}, valor, unidade, instrumento | Lote CSV/XLSX já parseado | Registros válidos e lista de rejeições com motivo |
 | Normalização | Conversão para a unidade canônica do tipo (nível → m, pressão → kPa, vazão → m³/s, deslocamento → mm) | Registro + unidade | Valor canônico |
-| Consistência física | Faixa plausível por tipo/sensor, timestamp não futuro, duplicatas, ordenação | Registros + metadados do sensor | Flags de qualidade |
-| Lacunas | Intervalo entre leituras maior que a frequência esperada | Série por sensor | Lista de lacunas |
+| Consistência física | Faixa plausível por tipo/instrumento, timestamp não futuro, duplicatas, ordenação | Registros + metadados do instrumento | Flags de qualidade |
+| Lacunas | Intervalo entre leituras maior que a frequência esperada | Série por instrumento | Lista de lacunas |
 
 ### M2 — Monitoramento: limites e anomalias (`monitoramento`) · P1
 Fonte: [REQ RF-04, RF-06]. O material do professor não traz métodos estatísticos, que são escolha de engenharia do time. A escala de níveis vem de [AP Lei 12.334 Art. 27] e [PAE Quadro 5.2].
 
 | Cálculo | Regra | Saídas |
 |---|---|---|
-| Limites por barragem/sensor | Comparação com os limites configurados de Aviso, Alerta e Crítico (RF-06) | Severidade por leitura |
+| Limites por barragem/instrumento | Comparação com os limites configurados de Aviso, Alerta e Crítico (RF-06) | Severidade por leitura |
 | Taxa de variação | Δvalor/Δt acima do limite (ex.: subida rápida de piezômetro, rebaixamento rápido do NA) | Severidade |
 | Desvio estatístico | Z-score robusto (mediana/MAD) em janela móvel | Leituras anômalas |
-| Sensor travado/ruído | Variância ≈ 0 por N leituras, ou saltos isolados | Flag de sensor |
+| Instrumento travado/ruído | Variância ≈ 0 por N leituras, ou saltos isolados | Flag de instrumento |
 | Consolidação | Maior severidade entre os módulos → status da barragem | Status + eventos para auditoria (RF-12) |
 
 **Mapeamento de severidade proposto** (a confirmar com o professor):
@@ -120,7 +123,7 @@ Fonte: [AP Notas 07, 10 e 11]. Cobre o "cálculo de pressões" do RF-04.
 | Cálculo | Fórmula | Entradas | Saídas |
 |---|---|---|---|
 | Pressão hidrostática | p = γw·h | Profundidade h | p (kPa) |
-| Carga piezométrica a partir da leitura | h_p = p/γw; NA piezométrico = cota do sensor + h_p | Leitura (kPa), cota de instalação | h_p (m), cota piezométrica |
+| Carga piezométrica a partir da leitura | h_p = p/γw; NA piezométrico = cota do instrumento + h_p | Leitura (kPa), cota de instalação | h_p (m), cota piezométrica |
 | Carga piezométrica em ponto | H_p = cota da equipotencial − cota do ponto | Cotas | H_p (m) |
 | Empuxo hidrostático (por metro) | E = γw·h²/2, aplicado a h/3 da base; em superfície plana: F = γ·h_cg·A | h, área | E (kN/m), braço |
 | Peso de água sobre paramento inclinado | W = γw·V | Geometria | W (kN/m) |
@@ -206,7 +209,7 @@ Fonte: [PAE §5 e §8] e [AP Art. 27].
 ### M10 — Gráficos para relatórios (`graficos`) · P1
 Fonte: [REQ RF-07] e stack (Matplotlib).
 
-- Séries temporais por sensor, com faixas de limite e marcação de anomalias.
+- Séries temporais por instrumento, com faixas de limite e marcação de anomalias.
 - Curva cota–área–volume, FS(t) × NA e histograma do índice de demanda.
 - Saída em PNG ou SVG, com os caminhos devolvidos no JSON. O Desktop insere essas imagens no PDF via OpenPDF.
 
@@ -250,4 +253,4 @@ Os métodos sem exercício resolvido na apostila (Fellenius, Bishop) são verifi
 - **Classificação:** tabelas de pontuação CT/EC/PS/DPA e faixas de corte do CRI (60/35) e do DPA (16/10).
 - **Entradas em `mca`:** a conversão usa γw = 9,81, mesmo quando o cálculo usa outro γw.
 - **Subpressão:** coeficiente de redução por drenagem (não consta na apostila).
-- **Monitoramento:** métodos estatísticos de anomalia, janelas padrão por tipo de sensor e histerese nos limites.
+- **Monitoramento:** métodos estatísticos de anomalia, janelas padrão por tipo de instrumento e histerese nos limites.

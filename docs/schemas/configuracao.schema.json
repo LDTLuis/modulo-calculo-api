@@ -35,7 +35,7 @@
           "type": "number",
           "minimum": 1,
           "default": 1.5,
-          "description": "Há lacuna quando o intervalo entre leituras de um sensor passa de frequência esperada × fator."
+          "description": "Há lacuna quando o intervalo entre leituras de um instrumento passa de frequência esperada × fator."
         }
       },
       "additionalProperties": false,
@@ -66,14 +66,14 @@
         },
         "additionalProperties": false
       },
-      "description": "Valores padrão por tipo de medição (chave: nivel, pressao, vazao ou deslocamento), usados pelos sensores sem valor próprio."
+      "description": "Valores padrão por tipo de medição (chave: nivel, pressao, vazao ou deslocamento), usados pelos instrumentos sem valor próprio."
     },
     "sensores": {
       "type": "object",
       "additionalProperties": {
         "$ref": "#/$defs/sensor"
       },
-      "description": "Cadastro por instrumento; a chave é o identificador do sensor, igual ao campo `sensor` das medições."
+      "description": "Cadastro por instrumento; a chave é o identificador do instrumento, igual ao campo `sensor` das medições."
     },
     "monitoramento": {
       "type": "object",
@@ -114,7 +114,7 @@
             "ativo": {
               "type": "boolean",
               "default": false,
-              "description": "Liga a detecção de sensor travado."
+              "description": "Liga a detecção de instrumento travado."
             },
             "leituras_consecutivas": {
               "type": "integer",
@@ -326,7 +326,7 @@
             "mm",
             "psi"
           ],
-          "description": "Unidade de min/max; compatível com o tipo do sensor. Padrão: unidade canônica do tipo."
+          "description": "Unidade de min/max; compatível com o tipo do instrumento. Padrão: unidade canônica do tipo."
         }
       },
       "additionalProperties": false,
@@ -383,7 +383,7 @@
             "vazao",
             "deslocamento"
           ],
-          "description": "Tipo cadastrado; leituras desse sensor com outro tipo são rejeitadas (TIPO_DIVERGENTE)."
+          "description": "Tipo cadastrado; leituras desse instrumento com outro tipo são rejeitadas (TIPO_DIVERGENTE)."
         },
         "faixa": {
           "$ref": "#/$defs/faixa",
@@ -392,7 +392,7 @@
         "frequencia_esperada_s": {
           "type": "number",
           "exclusiveMinimum": 0,
-          "description": "Intervalo esperado entre leituras deste sensor, em segundos; prevalece sobre o padrão do tipo."
+          "description": "Intervalo esperado entre leituras deste instrumento, em segundos; prevalece sobre o padrão do tipo."
         },
         "limites_alerta": {
           "type": "object",

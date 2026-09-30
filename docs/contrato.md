@@ -2,6 +2,8 @@
 
 Define como o Desktop chama o motor (`python -m damiq_calc`, via `ProcessBuilder`) e, na seção `configuracao`, **o formato dos parâmetros que a Central de Configurações Web cadastra e publica**.
 
+> **Terminologia:** *instrumento* é o ponto de medição instalado na barragem (piezômetro, régua de nível, medidor de vazão, marco de deslocamento). Ele é lido pelo técnico de campo, e as leituras são digitadas ou importadas: não há sensores automáticos. No JSON, os campos mantêm os nomes do contrato 1.0: `sensor` (na medição), `sensores` (na configuração) e `sensor_travado` (detecção de valor repetido).
+
 **JSON Schema (draft 2020-12):** [`docs/schemas/`](schemas/). Os arquivos são gerados a partir do código do motor (`python -m damiq_calc.adapters.esquemas`), e um teste do CI falha se ficarem desatualizados.
 
 | Arquivo | Uso |
@@ -99,7 +101,7 @@ O Desktop deve registrar esses avisos no log (RF-12) e, de preferência, exibi-l
 
 ### 3.2 `padroes_por_tipo` — valores padrão por tipo de medição
 
-A chave é o tipo (`nivel`, `pressao`, `vazao` ou `deslocamento`). Vale para todo sensor que não tenha valor próprio.
+A chave é o tipo (`nivel`, `pressao`, `vazao` ou `deslocamento`). Vale para todo instrumento que não tenha valor próprio.
 
 | Campo | Regra |
 |---|---|
@@ -108,15 +110,15 @@ A chave é o tipo (`nivel`, `pressao`, `vazao` ou `deslocamento`). Vale para tod
 
 ### 3.3 `sensores` — cadastro por instrumento
 
-A chave é o identificador do sensor, igual ao campo `sensor` das medições.
+A chave é o identificador do instrumento, igual ao campo `sensor` das medições.
 
 | Campo | Obrigatório | Regra |
 |---|---|---|
-| `tipo` | **sim** | Tipo cadastrado. Leituras desse sensor com outro tipo são rejeitadas com `TIPO_DIVERGENTE` |
+| `tipo` | **sim** | Tipo cadastrado. Leituras desse instrumento com outro tipo são rejeitadas com `TIPO_DIVERGENTE` |
 | `faixa` | não | Ver 3.4. Prevalece sobre `padroes_por_tipo` |
 | `frequencia_esperada_s` | não | Prevalece sobre `padroes_por_tipo` |
 
-**Prioridade:** o valor do sensor vale primeiro. Se não houver, vale o `padroes_por_tipo`, e por último o padrão embutido no motor.
+**Prioridade:** o valor do instrumento vale primeiro. Se não houver, vale o `padroes_por_tipo`, e por último o padrão embutido no motor.
 
 ### 3.4 Objeto `faixa` — faixa plausível do instrumento
 
@@ -125,11 +127,11 @@ A chave é o identificador do sensor, igual ao campo `sensor` das medições.
 ```
 
 - `min` e `max` são número ou `null` (lado aberto). É preciso informar pelo menos um, e `min ≤ max`.
-- `unidade` é opcional. Se ausente, vale a unidade canônica do tipo. Precisa ser compatível com o tipo (uma faixa em `kPa` para um sensor de nível é recusada).
+- `unidade` é opcional. Se ausente, vale a unidade canônica do tipo. Precisa ser compatível com o tipo (uma faixa em `kPa` para um instrumento de nível é recusada).
 
-> **Faixa plausível ≠ limite de alerta.** A faixa plausível descreve o que o **instrumento** consegue medir: é a ficha técnica, cadastrada pelo técnico. Uma leitura fora dela é **mantida** com a flag `FORA_FAIXA_PLAUSIVEL`, porque pode ser defeito do sensor ou evento real. Quem avalia é o monitoramento (M2). Os limites de **segurança da barragem** (Aviso/Alerta/Crítico) vão em `limites_alerta` (seção 3.5), cadastrados pelo engenheiro.
+> **Faixa plausível ≠ limite de alerta.** A faixa plausível descreve o que o **instrumento** consegue medir: é a ficha técnica, cadastrada pelo técnico. Uma leitura fora dela é **mantida** com a flag `FORA_FAIXA_PLAUSIVEL`, porque pode ser defeito do instrumento ou evento real. Quem avalia é o monitoramento (M2). Os limites de **segurança da barragem** (Aviso/Alerta/Crítico) vão em `limites_alerta` (seção 3.5), cadastrados pelo engenheiro.
 
-### 3.5 Regras de alerta por sensor (M2)
+### 3.5 Regras de alerta por instrumento (M2)
 
 Ficam dentro de `sensores.<id>`, ao lado de `tipo` e `faixa`, e são cadastradas pelo engenheiro.
 
@@ -169,7 +171,7 @@ Ficam dentro de `sensores.<id>`, ao lado de `tipo` e `faixa`, e são cadastradas
 | `direcao` | `"ambas"` | `"subida"`, `"descida"` ou `"ambas"`. Ex.: `descida` no NA identifica **rebaixamento rápido**, condição crítica para a estabilidade do talude de montante (AP) |
 | `aviso`/`alerta`/`critico` | — | Magnitudes positivas e crescentes. Pelo menos uma é obrigatória |
 
-A taxa é calculada entre leituras consecutivas e extrapolada para o intervalo: 0,3 m em 2 dias = 0,15 m/dia. Leituras muito próximas amplificam o ruído, por isso o intervalo deve ser escolhido de acordo com a frequência de leitura do sensor.
+A taxa é calculada entre leituras consecutivas e extrapolada para o intervalo: 0,3 m em 2 dias = 0,15 m/dia. Leituras muito próximas amplificam o ruído, por isso o intervalo deve ser escolhido de acordo com a frequência de leitura do instrumento.
 
 ### 3.6 Parâmetros gerais de monitoramento (M2)
 
@@ -189,7 +191,7 @@ A taxa é calculada entre leituras consecutivas e extrapolada para o intervalo: 
 | `sensor_travado.ativo` | **false** | Liga a detecção de valor repetido. Desligada por padrão: com leitura manual, valores repetidos são comuns e legítimos |
 | `sensor_travado.leituras_consecutivas` | 12 | Inteiro ≥ 2. Número de valores idênticos seguidos para acionar |
 
-> Sensores cujo valor pode ficar legitimamente constante (ex.: NA com vertedouro livre) precisam de um `leituras_consecutivas` alto, ou de `ativo: false`.
+> Instrumentos cujo valor pode ficar legitimamente constante (ex.: NA com vertedouro livre) precisam de um `leituras_consecutivas` alto, ou de `ativo: false`.
 
 ### 3.7 Critérios dos cálculos: `limites_calculo` (M4 em diante)
 
@@ -222,9 +224,9 @@ São os critérios de aceitação dos cálculos de engenharia, definidos pelo en
 
 A Central já pode planejar as telas para estes campos. O motor 1.0 os aceita sem usá-los e sem gerar aviso.
 
-| Campo (por sensor) | Módulo | Descrição prevista |
+| Campo (por instrumento) | Módulo | Descrição prevista |
 |---|---|---|
-| `cota_instalacao_m` | M3 | Cota do sensor, para converter pressão em carga piezométrica |
+| `cota_instalacao_m` | M3 | Cota do instrumento, para converter pressão em carga piezométrica |
 
 | Campo (geral) | Módulo | Descrição prevista |
 |---|---|---|
@@ -236,10 +238,10 @@ A Central já pode planejar as telas para estes campos. O motor 1.0 os aceita se
 | Campo | Regra |
 |---|---|
 | `opcoes.agora` | ISO 8601 **com fuso**. Relógio de referência para "timestamp no futuro". Se ausente, usa o relógio da máquina. Útil para reprocessar lotes antigos e em testes |
-| `opcoes.graficos` | `{"diretorio": "...", "formato": "png" \| "svg"}` (M10). Gera uma **série temporal por sensor** do lote (histórico incluído), com as linhas de limite de alerta e as leituras fora da faixa plausível destacadas. Os caminhos voltam em `graficos: [{"tipo": "serie_temporal", "sensor", "arquivo"}]`, prontos para o Desktop embutir no PDF (OpenPDF). Também vale em `calcular` para os cálculos com gráfico (hoje, `hidrologia.curva_cota_volume` → `curva_cota_area_volume`) |
-| `historico` | Lista opcional, no mesmo formato de `medicoes`, com leituras **já processadas** antes deste lote. Serve só de contexto para taxa de variação, janela estatística, sensor travado e lacuna na transição. **Não gera alertas.** Leituras com o mesmo sensor e timestamp de uma leitura do lote são descartadas |
+| `opcoes.graficos` | `{"diretorio": "...", "formato": "png" \| "svg"}` (M10). Gera uma **série temporal por instrumento** do lote (histórico incluído), com as linhas de limite de alerta e as leituras fora da faixa plausível destacadas. Os caminhos voltam em `graficos: [{"tipo": "serie_temporal", "sensor", "arquivo"}]`, prontos para o Desktop embutir no PDF (OpenPDF). Também vale em `calcular` para os cálculos com gráfico (hoje, `hidrologia.curva_cota_volume` → `curva_cota_area_volume`) |
+| `historico` | Lista opcional, no mesmo formato de `medicoes`, com leituras **já processadas** antes deste lote. Serve só de contexto para taxa de variação, janela estatística, instrumento travado e lacuna na transição. **Não gera alertas.** Leituras com o mesmo instrumento e timestamp de uma leitura do lote são descartadas |
 
-**Quanto histórico enviar:** por sensor, no mínimo `anomalia.janela_leituras` leituras (padrão 24) ou `sensor_travado.leituras_consecutivas` (padrão 12), o que for maior. Sem histórico, o motor funciona, mas a primeira leitura de cada sensor no lote não tem taxa de variação nem referência estatística.
+**Quanto histórico enviar:** por instrumento, no mínimo `anomalia.janela_leituras` leituras (padrão 24) ou `sensor_travado.leituras_consecutivas` (padrão 12), o que for maior. Sem histórico, o motor funciona, mas a primeira leitura de cada instrumento no lote não tem taxa de variação nem referência estatística.
 
 ## 5. Resposta de `processar_lote`
 
@@ -278,7 +280,7 @@ A Central já pode planejar as telas para estes campos. O motor 1.0 os aceita se
 
 ### Alertas (M2)
 
-Cada alerta é um **episódio**: leituras consecutivas do mesmo sensor que dispararam a mesma regra viram um único alerta, com `inicio`, `fim`, número de `leituras`, `valor_extremo` e a **maior** severidade atingida.
+Cada alerta é um **episódio**: leituras consecutivas do mesmo instrumento que dispararam a mesma regra viram um único alerta, com `inicio`, `fim`, número de `leituras`, `valor_extremo` e a **maior** severidade atingida.
 
 | `tipo` | `categoria` | Severidade | Origem |
 |---|---|---|---|
@@ -288,9 +290,9 @@ Cada alerta é um **episódio**: leituras consecutivas do mesmo sensor que dispa
 | `SENSOR_TRAVADO` | QUALIDADE | AVISO | Valor idêntico repetido |
 | `ANOMALIA_ESTATISTICA` | QUALIDADE | AVISO | Destoa das leituras recentes. `detalhe.z` traz o z-score |
 
-- **`status_barragem`** é a maior severidade entre os alertas de SEGURANCA. **`status_dados`** é a maior entre os de QUALIDADE. Assim, um sensor com defeito não coloca a barragem em alerta.
+- **`status_barragem`** é a maior severidade entre os alertas de SEGURANCA. **`status_dados`** é a maior entre os de QUALIDADE. Assim, um instrumento com defeito não coloca a barragem em alerta.
 - **Leitura suspeita:** uma leitura fora da faixa plausível **continua** sendo avaliada contra os limites (postura conservadora), e o alerta de limite vem com `leitura_suspeita: true`, para o operador verificar o instrumento antes de acionar o PAE.
-- **Situação de cada sensor:** `status_atual` é o limite atingido na última leitura do lote (para o dashboard). `status_maximo` é o pior alerta de segurança do lote.
+- **Situação de cada instrumento:** `status_atual` é o limite atingido na última leitura do lote (para o dashboard). `status_maximo` é o pior alerta de segurança do lote.
 - **`monitoramento.nivel_resposta`** traduz o `status_barragem` no nível de resposta do PAE: `{"nivel", "cor", "rotulo", "situacao", "acoes", "fonte"}` (ex.: ALERTA → Nível 2, amarelo). O Desktop pode exibir as ações recomendadas diretamente no alerta.
 
 Mapeamento proposto (a validar com o professor): OK ↔ Nível 0 · AVISO ↔ Nível 1 / verde · ALERTA ↔ Nível 2 / amarelo · CRITICO ↔ Nível 3 / vermelho.
