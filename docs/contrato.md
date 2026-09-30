@@ -2,6 +2,17 @@
 
 Define como o Desktop chama o motor (`python -m damiq_calc`, via `ProcessBuilder`) e, na seção `configuracao`, **o formato dos parâmetros que a Central de Configurações Web cadastra e publica**.
 
+**JSON Schema (draft 2020-12):** [`docs/schemas/`](schemas/). Os arquivos são gerados a partir do código do motor (`python -m damiq_calc.adapters.esquemas`), e um teste do CI falha se ficarem desatualizados.
+
+| Arquivo | Uso |
+|---|---|
+| `configuracao.schema.json` | **Central:** validar o que é publicado (base para os schemas Zod e o Bean Validation). Inclui padrões (`default`) e os nomes de `limites_calculo`, com os cálculos que usam cada um (`x-calculos`) |
+| `requisicao.schema.json` | **Desktop:** DTOs da requisição (Jackson) e validação antes de chamar o motor. Com `calcular`, valida as `entradas` do cálculo escolhido |
+| `calculos.schema.json` | **Desktop:** entradas de cada um dos cálculos (`$defs` por `id`), para montar e validar as telas |
+| `resposta.schema.json` | **Desktop:** DTOs da resposta |
+
+Os schemas de entrada são **estritos** (`additionalProperties: false`): a Central e o Desktop recusam campos errados na origem. O motor é tolerante e devolve esses campos em `avisos`. Nas respostas, campos novos podem aparecer em versões 1.x, então os consumidores devem ignorar o que não conhecem (Jackson: `FAIL_ON_UNKNOWN_PROPERTIES = false`). Regras entre campos que o JSON Schema não expressa (ex.: `min ≤ max`, ordem dos níveis de alerta) são descritas em `description` e continuam validadas pelo motor (`validar_configuracao`).
+
 ## 1. Estrutura da requisição
 
 ```json

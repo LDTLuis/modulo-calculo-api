@@ -36,6 +36,7 @@ int codigo = p.waitFor();
 ## Operações (contrato 1.0)
 
 Especificação completa, incluindo a seção `configuracao` publicada pela Central Web: [docs/contrato.md](docs/contrato.md).
+JSON Schema gerado a partir do código: [docs/schemas/](docs/schemas/) (`python -m damiq_calc.adapters.esquemas` regenera).
 
 - `info` — versão do motor e operações disponíveis (handshake).
 - `validar_configuracao` — valida a configuração da Central antes de o Desktop gravá-la.

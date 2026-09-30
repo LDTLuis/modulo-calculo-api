@@ -1,0 +1,4028 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/LDTLuis/modulo-calculo-api/blob/main/docs/schemas/calculos.schema.json",
+  "title": "Entradas de cada cálculo da operação `calcular` (contrato 1.0)",
+  "$defs": {
+    "classificacao.enquadramento_pnsb": {
+      "type": "object",
+      "properties": {
+        "altura_macico": {
+          "description": "Altura do maciço, do ponto mais baixo da fundação à crista [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "capacidade": {
+          "description": "Capacidade total do reservatório [m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3",
+                    "L",
+                    "hm3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "residuos_perigosos": {
+          "description": "Reservatório contém resíduos perigosos? (1 = sim, 0 = não) [-]",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1
+            }
+          ],
+          "default": 0
+        },
+        "dpa": {
+          "description": "Pontuação de DPA, se já apurada (opcional) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Enquadramento na Política Nacional de Segurança de Barragens e grupo de cadastramento",
+      "description": "AP, Nota 01 – Lei 12.334/2010 (PNSB) e IN SEMAD-GO 01/2020",
+      "required": [
+        "altura_macico",
+        "capacidade"
+      ]
+    },
+    "classificacao.risco": {
+      "type": "object",
+      "properties": {
+        "ct": {
+          "description": "Pontuação de Características Técnicas (CT) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "ec": {
+          "description": "Pontuação de Estado de Conservação (EC) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "ps": {
+          "description": "Pontuação de Plano de Segurança (PS) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "ec_item_maximo": {
+          "description": "Maior pontuação individual entre os itens de EC [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0
+        },
+        "dpa": {
+          "description": "Pontuação de Dano Potencial Associado (DPA) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Categoria de risco (CRI), dano potencial (DPA), classe e periodicidade da RPSB",
+      "description": "AP, Nota 08 – Res. CNRH 143/2012: matriz de classificação CRI × DPA",
+      "required": [
+        "ct",
+        "ec",
+        "ps",
+        "dpa"
+      ]
+    },
+    "emergencia.nivel_resposta": {
+      "type": "object",
+      "properties": {
+        "severidade": {
+          "description": "Severidade: 0 = OK, 1 = AVISO, 2 = ALERTA, 3 = CRITICO [-]",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Nível de resposta do PAE a partir da severidade",
+      "description": "AP, Nota 07 – Legislação (art. 27, níveis de resposta); PAE João Leite, Quadro 5.2",
+      "required": [
+        "severidade"
+      ]
+    },
+    "emergencia.zas": {
+      "type": "object",
+      "properties": {
+        "secoes": {
+          "description": "Seções do estudo de ruptura: distância à barragem e tempo de chegada da onda",
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "properties": {
+              "distancia": {
+                "description": "Distância a jusante da barragem [km]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "m",
+                          "cm",
+                          "mm",
+                          "km"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "tempo_chegada": {
+                "description": "Tempo de chegada da onda de ruptura [min]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "s",
+                          "min",
+                          "h",
+                          "dia"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "distancia",
+              "tempo_chegada"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "Extensão da Zona de Autossalvamento (ZAS)",
+      "description": "PAE João Leite, Anexo – Zona de Autossalvamento (critério do guia da ANA)",
+      "required": [
+        "secoes"
+      ]
+    },
+    "estabilidade.gravidade_deslizamento": {
+      "type": "object",
+      "properties": {
+        "peso": {
+          "description": "Peso próprio da barragem por metro (P) [kN/m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m",
+                    "tf/m"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "empuxo": {
+          "description": "Empuxo horizontal da água por metro (E) – ver hidrostatica.empuxo [kN/m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m",
+                    "tf/m"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "subpressao": {
+          "description": "Subpressão por metro (U) – ver hidrostatica.subpressao [kN/m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m",
+                    "tf/m"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.0
+        },
+        "coeficiente_atrito": {
+          "description": "Coeficiente de atrito base–fundação (f) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.75
+        }
+      },
+      "additionalProperties": false,
+      "title": "Barragem de gravidade: segurança contra escorregamento",
+      "description": "AP, Nota 10 – Barragens de gravidade: condições de estabilidade",
+      "required": [
+        "peso",
+        "empuxo"
+      ]
+    },
+    "estabilidade.gravidade_resultante": {
+      "type": "object",
+      "properties": {
+        "largura_base": {
+          "description": "Largura da base (B) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "peso": {
+          "description": "Peso próprio da barragem por metro (P) [kN/m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m",
+                    "tf/m"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "braco_peso": {
+          "description": "Distância do centro de gravidade ao pé de montante (x_P) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "empuxo": {
+          "description": "Empuxo horizontal da água por metro (E) – ver hidrostatica.empuxo [kN/m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m",
+                    "tf/m"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "altura_empuxo": {
+          "description": "Altura de aplicação do empuxo acima da base (y_E; h/3 no paramento vertical) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "subpressao": {
+          "description": "Subpressão por metro (U) – ver hidrostatica.subpressao [kN/m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m",
+                    "tf/m"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.0
+        },
+        "braco_subpressao": {
+          "description": "Distância da subpressão ao pé de montante (x_U) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.0
+        },
+        "empuxo_vertical": {
+          "description": "Peso da água sobre o paramento inclinado (Ev), opcional [kN/m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m",
+                    "tf/m"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.0
+        },
+        "braco_empuxo_vertical": {
+          "description": "Distância de Ev ao pé de montante (x_Ev) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.0
+        }
+      },
+      "additionalProperties": false,
+      "title": "Barragem de gravidade: posição da resultante e tensões na base (terço médio)",
+      "description": "AP, Nota 10 – Barragens de gravidade: condições de estabilidade",
+      "required": [
+        "largura_base",
+        "peso",
+        "braco_peso",
+        "empuxo",
+        "altura_empuxo"
+      ]
+    },
+    "estabilidade.talude_bishop": {
+      "type": "object",
+      "properties": {
+        "fatias": {
+          "description": "Fatias da superfície de ruptura",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "largura": {
+                "description": "Largura da fatia (b) [m]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "m",
+                          "cm",
+                          "mm",
+                          "km"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "peso": {
+                "description": "Peso da fatia por metro (W) [kN/m]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "kN/m",
+                          "tf/m"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "alfa": {
+                "description": "Inclinação da base da fatia (α) [grau]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": -90,
+                    "exclusiveMaximum": 90
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "grau",
+                          "rad"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "coesao": {
+                "description": "Coesão efetiva do solo na base (c') [kPa]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "kPa",
+                          "Pa",
+                          "MPa",
+                          "bar",
+                          "psi",
+                          "mca"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "phi": {
+                "description": "Ângulo de atrito efetivo na base (φ') [grau]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMaximum": 90
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "grau",
+                          "rad"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "poropressao": {
+                "description": "Poropressão média na base (u) [kPa]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "kPa",
+                          "Pa",
+                          "MPa",
+                          "bar",
+                          "psi",
+                          "mca"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ],
+                "default": 0.0
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "largura",
+              "peso",
+              "alfa",
+              "coesao",
+              "phi"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "FS de talude pelo método de Bishop simplificado",
+      "description": "AP, Nota 09 – Estabilidade de taludes (NBR 11.682; método das fatias)",
+      "required": [
+        "fatias"
+      ]
+    },
+    "estabilidade.talude_fellenius": {
+      "type": "object",
+      "properties": {
+        "fatias": {
+          "description": "Fatias da superfície de ruptura",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "largura": {
+                "description": "Largura da fatia (b) [m]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "m",
+                          "cm",
+                          "mm",
+                          "km"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "peso": {
+                "description": "Peso da fatia por metro (W) [kN/m]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "kN/m",
+                          "tf/m"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "alfa": {
+                "description": "Inclinação da base da fatia (α) [grau]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": -90,
+                    "exclusiveMaximum": 90
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "grau",
+                          "rad"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "coesao": {
+                "description": "Coesão efetiva do solo na base (c') [kPa]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "kPa",
+                          "Pa",
+                          "MPa",
+                          "bar",
+                          "psi",
+                          "mca"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "phi": {
+                "description": "Ângulo de atrito efetivo na base (φ') [grau]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMaximum": 90
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "grau",
+                          "rad"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "poropressao": {
+                "description": "Poropressão média na base (u) [kPa]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "kPa",
+                          "Pa",
+                          "MPa",
+                          "bar",
+                          "psi",
+                          "mca"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ],
+                "default": 0.0
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "largura",
+              "peso",
+              "alfa",
+              "coesao",
+              "phi"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "FS de talude pelo método das fatias de Fellenius",
+      "description": "AP, Nota 09 – Estabilidade de taludes (NBR 11.682; método das fatias)",
+      "required": [
+        "fatias"
+      ]
+    },
+    "geometria.borda_livre": {
+      "type": "object",
+      "properties": {
+        "cota_crista": {
+          "description": "Cota da crista (coroamento) [m]",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "cota_na_maximo": {
+          "description": "Cota do NA máximo (maximorum ou de projeto) [m]",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Borda livre (folga entre a crista e o NA máximo)",
+      "description": "AP, Nota 02 – Características do maciço de terra",
+      "required": [
+        "cota_crista",
+        "cota_na_maximo"
+      ]
+    },
+    "geometria.secao_macico": {
+      "type": "object",
+      "properties": {
+        "altura": {
+          "description": "Altura do maciço (h) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "largura_crista": {
+          "description": "Largura da crista (b) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "talude_montante": {
+          "description": "Inclinação do talude de montante, H:V (m₁) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 3.0
+        },
+        "talude_jusante": {
+          "description": "Inclinação do talude de jusante, H:V (m₂) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 2.0
+        }
+      },
+      "additionalProperties": false,
+      "title": "Seção transversal do maciço e conformidade de crista e taludes",
+      "description": "AP, Nota 02 – Características do maciço de terra",
+      "required": [
+        "altura",
+        "largura_crista"
+      ]
+    },
+    "geometria.volume_terra": {
+      "type": "object",
+      "properties": {
+        "largura_crista": {
+          "description": "Largura da crista (b) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "talude_montante": {
+          "description": "Inclinação do talude de montante, H:V (m₁) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 3.0
+        },
+        "talude_jusante": {
+          "description": "Inclinação do talude de jusante, H:V (m₂) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 2.0
+        },
+        "trechos": {
+          "description": "Trechos do eixo: altura do maciço e comprimento de cada trecho",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "altura": {
+                "description": "Altura do maciço no trecho (h) [m]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "m",
+                          "cm",
+                          "mm",
+                          "km"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "comprimento": {
+                "description": "Comprimento do trecho ao longo do eixo (L) [m]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "m",
+                          "cm",
+                          "mm",
+                          "km"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "altura",
+              "comprimento"
+            ]
+          }
+        },
+        "volume_agua": {
+          "description": "Volume de água acumulado (opcional, para a relação água : terra) [m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3",
+                    "L",
+                    "hm3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Volume de terra do maciço por trapézios",
+      "description": "AP, Nota 02 – Volume de terra empregado na construção",
+      "required": [
+        "largura_crista",
+        "trechos"
+      ]
+    },
+    "hidrologia.curva_cota_volume": {
+      "type": "object",
+      "properties": {
+        "pontos": {
+          "description": "Curvas de nível: cota e área inundada até cada curva (a mais baixa, geralmente com área 0)",
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "properties": {
+              "cota": {
+                "description": "Cota da curva de nível [m]",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "m",
+                          "cm",
+                          "mm",
+                          "km"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "area": {
+                "description": "Área definida pela curva [m2]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "m2",
+                          "ha",
+                          "km2"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "cota",
+              "area"
+            ]
+          }
+        },
+        "cota_consulta": {
+          "description": "Cota para consultar volume e área (opcional; ex.: NA medido) [m]",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Curva cota–área–volume do reservatório (curvas de nível)",
+      "description": "AP, Nota 03 – Volume de água armazenado",
+      "required": [
+        "pontos"
+      ]
+    },
+    "hidrologia.extravasor": {
+      "type": "object",
+      "properties": {
+        "vazao_projeto": {
+          "description": "Vazão de projeto (ex.: Método Racional com a chuva de Tr adotado) [m3/s]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3/s",
+                    "m3/h",
+                    "L/s",
+                    "L/min",
+                    "L/h"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "capacidade": {
+          "description": "Capacidade de descarga do extravasor [m3/s]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3/s",
+                    "m3/h",
+                    "L/s",
+                    "L/min",
+                    "L/h"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Verificação da capacidade do extravasor",
+      "description": "AP, Nota 02 – Aspectos construtivos: extravasor",
+      "required": [
+        "vazao_projeto",
+        "capacidade"
+      ]
+    },
+    "hidrologia.indice_demanda": {
+      "type": "object",
+      "properties": {
+        "vazao_especifica": {
+          "description": "Vazão específica de referência da região (Qesp) [m3/s/km2]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3/s/km2",
+                    "L/s/km2"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "area_drenagem": {
+          "description": "Área de drenagem até o barramento (AD) [km2]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m2",
+                    "ha",
+                    "km2"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "vazao_consumo": {
+          "description": "Vazão de consumo / captação (Qconsumo) [m3/s]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3/s",
+                    "m3/h",
+                    "L/s",
+                    "L/min",
+                    "L/h"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Índice de demanda (comprometimento da vazão de referência)",
+      "description": "AP, Nota 01 – Outorga: análise de disponibilidade hídrica",
+      "required": [
+        "vazao_especifica",
+        "area_drenagem",
+        "vazao_consumo"
+      ]
+    },
+    "hidrologia.metodo_racional": {
+      "type": "object",
+      "properties": {
+        "coeficiente_escoamento": {
+          "description": "Coeficiente de escoamento superficial (C) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "intensidade": {
+          "description": "Intensidade da chuva de projeto (i) [mm/h]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "mm/h",
+                    "mm/min",
+                    "mm/dia"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "area": {
+          "description": "Área da bacia de contribuição (A) [ha]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m2",
+                    "ha",
+                    "km2"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Vazão de cheia pelo Método Racional",
+      "description": "AP, Nota 04 – Método Racional",
+      "required": [
+        "coeficiente_escoamento",
+        "intensidade",
+        "area"
+      ]
+    },
+    "hidrologia.periodo_retorno": {
+      "type": "object",
+      "properties": {
+        "risco": {
+          "description": "Risco de falha admitido na vida útil (R); aceita % [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "vida_util": {
+          "description": "Vida útil da obra (n), em anos [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 1
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Período de retorno a partir do risco admitido e da vida útil",
+      "description": "AP, Nota 06 – Recorrência / período de retorno",
+      "required": [
+        "risco",
+        "vida_util"
+      ]
+    },
+    "hidrologia.vazao_medida": {
+      "type": "object",
+      "properties": {
+        "volume": {
+          "description": "Volume do recipiente (tambor) [m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3",
+                    "L",
+                    "hm3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "tempos": {
+          "description": "Tempos de enchimento de cada repetição (a apostila sugere três)",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "tempo": {
+                "description": "Tempo de enchimento [s]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "s",
+                          "min",
+                          "h",
+                          "dia"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "tempo"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "Vazão de base medida (volume / tempo médio)",
+      "description": "AP, Nota 02 – Vazão de base",
+      "required": [
+        "volume",
+        "tempos"
+      ]
+    },
+    "hidrologia.volume_secoes": {
+      "type": "object",
+      "properties": {
+        "secoes": {
+          "description": "Seções: área molhada e distância de influência de cada uma",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "area": {
+                "description": "Área da seção [m2]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "m2",
+                          "ha",
+                          "km2"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              },
+              "distancia": {
+                "description": "Distância de influência da seção (d) [m]",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "valor": {
+                        "type": "number"
+                      },
+                      "unidade": {
+                        "enum": [
+                          "m",
+                          "cm",
+                          "mm",
+                          "km"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+                    "required": [
+                      "valor"
+                    ]
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "area",
+              "distancia"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "title": "Volume por seções transversais",
+      "description": "AP, Nota 03 – Volume de água armazenado",
+      "required": [
+        "secoes"
+      ]
+    },
+    "hidrostatica.carga_rede_fluxo": {
+      "type": "object",
+      "properties": {
+        "cota_na_montante": {
+          "description": "Carga total a montante: cota do NA do reservatório [m]",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "perda_carga_total": {
+          "description": "Perda de carga total (h): NA montante − NA jusante [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "n_d": {
+          "description": "Número de quedas de potencial da rede (N_D) [-]",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            }
+          ]
+        },
+        "quedas_percorridas": {
+          "description": "Quedas de potencial percorridas até o ponto (n) [-]",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            }
+          ]
+        },
+        "cota_ponto": {
+          "description": "Cota do ponto (carga altimétrica) [m]",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "gama_w": {
+          "description": "Peso específico da água (γw); a apostila usa 10 kN/m³ nos exemplos [kN/m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 9.81
+        }
+      },
+      "additionalProperties": false,
+      "title": "Cargas e pressão em um ponto da fundação (rede de fluxo)",
+      "description": "AP, Nota 11 – Interpretação de redes de fluxo",
+      "required": [
+        "cota_na_montante",
+        "perda_carga_total",
+        "n_d",
+        "quedas_percorridas",
+        "cota_ponto"
+      ]
+    },
+    "hidrostatica.empuxo": {
+      "type": "object",
+      "properties": {
+        "altura_agua": {
+          "description": "Altura da lâmina d'água sobre a base (h) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "inclinacao_montante": {
+          "description": "Inclinação do paramento de montante, H:V (0 = vertical; 3 = talude 3:1) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.0
+        },
+        "comprimento": {
+          "description": "Comprimento da barragem (opcional; sem ele, resultados por metro) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "gama_w": {
+          "description": "Peso específico da água (γw); a apostila usa 10 kN/m³ nos exemplos [kN/m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 9.81
+        }
+      },
+      "additionalProperties": false,
+      "title": "Empuxo hidrostático no paramento de montante",
+      "description": "AP, Nota 10 – Empuxo em barramentos",
+      "required": [
+        "altura_agua"
+      ]
+    },
+    "hidrostatica.piezometro": {
+      "type": "object",
+      "properties": {
+        "pressao": {
+          "description": "Pressão lida no piezômetro (u) [kPa]",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kPa",
+                    "Pa",
+                    "MPa",
+                    "bar",
+                    "psi",
+                    "mca"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "cota_instalacao": {
+          "description": "Cota de instalação do sensor [m]",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "gama_w": {
+          "description": "Peso específico da água (γw); a apostila usa 10 kN/m³ nos exemplos [kN/m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 9.81
+        }
+      },
+      "additionalProperties": false,
+      "title": "Carga e cota piezométrica a partir da leitura do piezômetro",
+      "description": "AP, Nota 11 – Interpretação de redes de fluxo",
+      "required": [
+        "pressao",
+        "cota_instalacao"
+      ]
+    },
+    "hidrostatica.pressao": {
+      "type": "object",
+      "properties": {
+        "profundidade": {
+          "description": "Profundidade abaixo do nível d'água (h) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "gama_w": {
+          "description": "Peso específico da água (γw); a apostila usa 10 kN/m³ nos exemplos [kN/m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 9.81
+        }
+      },
+      "additionalProperties": false,
+      "title": "Pressão hidrostática em profundidade",
+      "description": "AP, Nota 10 – Empuxo em barramentos",
+      "required": [
+        "profundidade"
+      ]
+    },
+    "hidrostatica.subpressao": {
+      "type": "object",
+      "properties": {
+        "largura_base": {
+          "description": "Largura da base da barragem (B) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "pressao_montante": {
+          "description": "Pressão da água sob o pé de montante (u1) [kPa]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kPa",
+                    "Pa",
+                    "MPa",
+                    "bar",
+                    "psi",
+                    "mca"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "pressao_jusante": {
+          "description": "Pressão da água sob o pé de jusante (u2) [kPa]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kPa",
+                    "Pa",
+                    "MPa",
+                    "bar",
+                    "psi",
+                    "mca"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "comprimento": {
+          "description": "Comprimento da barragem (opcional; sem ele, resultados por metro) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Subpressão na base da barragem (diagrama trapezoidal)",
+      "description": "AP, Nota 11 – Interpretação de redes de fluxo",
+      "required": [
+        "largura_base",
+        "pressao_montante",
+        "pressao_jusante"
+      ]
+    },
+    "opcionais.balanco_hidrico": {
+      "type": "object",
+      "properties": {
+        "vazao_afluente": {
+          "description": "Vazão afluente média (Qin) [m3/s]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3/s",
+                    "m3/h",
+                    "L/s",
+                    "L/min",
+                    "L/h"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "vazao_efluente": {
+          "description": "Vazão efluente média: vertida + captada + descarga (Qout) [m3/s]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3/s",
+                    "m3/h",
+                    "L/s",
+                    "L/min",
+                    "L/h"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "vazao_perdas": {
+          "description": "Perdas por infiltração/percolação (Qperdas) [m3/s]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3/s",
+                    "m3/h",
+                    "L/s",
+                    "L/min",
+                    "L/h"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.0
+        },
+        "evaporacao": {
+          "description": "Evaporação do espelho d'água (E) [mm/dia]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "mm/h",
+                    "mm/min",
+                    "mm/dia"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.0
+        },
+        "area_espelho": {
+          "description": "Área do espelho d'água (A) [m2]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m2",
+                    "ha",
+                    "km2"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.0
+        },
+        "intervalo": {
+          "description": "Duração do intervalo (Δt) [dia]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "s",
+                    "min",
+                    "h",
+                    "dia"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "volume_inicial": {
+          "description": "Volume armazenado no início (opcional) [m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3",
+                    "L",
+                    "hm3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Balanço hídrico do reservatório no intervalo",
+      "description": "[LIT] Balanço hídrico do reservatório (conservação de volume)",
+      "required": [
+        "vazao_afluente",
+        "vazao_efluente",
+        "intervalo"
+      ]
+    },
+    "opcionais.evapotranspiracao_fao56": {
+      "type": "object",
+      "properties": {
+        "saldo_radiacao": {
+          "description": "Saldo de radiação Rn, em MJ/m²/dia [-]",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "fluxo_calor_solo": {
+          "description": "Fluxo de calor no solo G, em MJ/m²/dia (≈ 0 no passo diário) [-]",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.0
+        },
+        "temperatura": {
+          "description": "Temperatura média do ar T, em °C [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": -50,
+              "maximum": 60
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "vento_2m": {
+          "description": "Velocidade do vento a 2 m (u2) [m/s]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m/s",
+                    "cm/s"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "pressao_saturacao": {
+          "description": "Pressão de saturação de vapor (es) [kPa]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kPa",
+                    "Pa",
+                    "MPa",
+                    "bar",
+                    "psi",
+                    "mca"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "pressao_real": {
+          "description": "Pressão real de vapor (ea) [kPa]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kPa",
+                    "Pa",
+                    "MPa",
+                    "bar",
+                    "psi",
+                    "mca"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "declividade_curva": {
+          "description": "Declividade da curva de pressão de vapor Δ, em kPa/°C [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "constante_psicrometrica": {
+          "description": "Constante psicrométrica γ, em kPa/°C (0,067 ao nível do mar) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 0.067
+        }
+      },
+      "additionalProperties": false,
+      "title": "Evapotranspiração de referência ET0 (Penman-Monteith FAO-56, diária)",
+      "description": "[LIT] FAO-56 (Allen et al., 1998) – Penman-Monteith, passo diário",
+      "required": [
+        "saldo_radiacao",
+        "temperatura",
+        "vento_2m",
+        "pressao_saturacao",
+        "pressao_real",
+        "declividade_curva"
+      ]
+    },
+    "opcionais.pico_ruptura_froehlich": {
+      "type": "object",
+      "properties": {
+        "volume_reservatorio": {
+          "description": "Volume do reservatório no instante da ruptura (Vw) [m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m3",
+                    "L",
+                    "hm3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "altura_agua_brecha": {
+          "description": "Altura d'água sobre a base da brecha (hw) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Estimativa preliminar da vazão de pico de ruptura (Froehlich, 1995)",
+      "description": "[LIT] Froehlich (1995) – vazão de pico de ruptura por regressão",
+      "required": [
+        "volume_reservatorio",
+        "altura_agua_brecha"
+      ]
+    },
+    "opcionais.vertedor_retangular": {
+      "type": "object",
+      "properties": {
+        "largura": {
+          "description": "Largura da soleira (L) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "carga": {
+          "description": "Carga hidráulica sobre a soleira (H) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "coeficiente": {
+          "description": "Coeficiente de descarga (C, SI) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 1.838
+        }
+      },
+      "additionalProperties": false,
+      "title": "Vazão em vertedor retangular (Francis)",
+      "description": "[LIT] Francis – vertedor retangular de parede delgada, sem contrações laterais",
+      "required": [
+        "largura",
+        "carga"
+      ]
+    },
+    "opcionais.vertedor_triangular": {
+      "type": "object",
+      "properties": {
+        "carga": {
+          "description": "Carga hidráulica sobre o vértice (H) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "coeficiente": {
+          "description": "Coeficiente (SI) [-]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "-",
+                    "%"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 1.4
+        }
+      },
+      "additionalProperties": false,
+      "title": "Vazão em vertedor triangular de 90° (Thomson) – medidores de vazão de drenagem",
+      "description": "[LIT] Thomson – vertedor triangular de 90°",
+      "required": [
+        "carga"
+      ]
+    },
+    "percolacao.darcy": {
+      "type": "object",
+      "properties": {
+        "k": {
+          "description": "Coeficiente de permeabilidade do solo (k) [m/s]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m/s",
+                    "cm/s"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "perda_carga": {
+          "description": "Perda de carga ao longo do percurso (Δh) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "comprimento_percurso": {
+          "description": "Comprimento do percurso de percolação (L) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "area": {
+          "description": "Área da seção de escoamento (A), opcional [m2]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m2",
+                    "ha",
+                    "km2"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Lei de Darcy: gradiente, velocidade e vazão",
+      "description": "AP, Nota 11 – Fluxo de rede e gradiente hidráulico",
+      "required": [
+        "k",
+        "perda_carga",
+        "comprimento_percurso"
+      ]
+    },
+    "percolacao.filtro_terzaghi": {
+      "type": "object",
+      "properties": {
+        "d15_filtro": {
+          "description": "Diâmetro D15 do material do filtro [mm]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "d15_solo": {
+          "description": "Diâmetro D15 do solo protegido [mm]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "d85_solo": {
+          "description": "Diâmetro D85 do solo protegido [mm]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Verificação de filtro de proteção (critérios de Terzaghi)",
+      "description": "AP, Nota 11 – Critérios de filtro de Terzaghi",
+      "required": [
+        "d15_filtro",
+        "d15_solo",
+        "d85_solo"
+      ]
+    },
+    "percolacao.piping": {
+      "type": "object",
+      "properties": {
+        "perda_carga_total": {
+          "description": "Perda de carga total (h): NA montante − NA jusante [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "n_d": {
+          "description": "Número de quedas de potencial da rede (N_D) [-]",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            }
+          ]
+        },
+        "comprimento_celula": {
+          "description": "Distância entre as duas últimas equipotenciais na face de saída (l) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "gama_sat": {
+          "description": "Peso específico saturado do solo da fundação (γsat) [kN/m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "gama_w": {
+          "description": "Peso específico da água (γw); a apostila usa 10 kN/m³ nos exemplos [kN/m3]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "kN/m3"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ],
+          "default": 9.81
+        }
+      },
+      "additionalProperties": false,
+      "title": "Gradiente de saída e FS contra areia movediça (piping)",
+      "description": "AP, Nota 11 – Redes de fluxo, Exercício 2 (areia movediça)",
+      "required": [
+        "perda_carga_total",
+        "n_d",
+        "comprimento_celula",
+        "gama_sat"
+      ]
+    },
+    "percolacao.vazao_rede_fluxo": {
+      "type": "object",
+      "properties": {
+        "k": {
+          "description": "Coeficiente de permeabilidade do solo (k) [m/s]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m/s",
+                    "cm/s"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "perda_carga_total": {
+          "description": "Perda de carga total (h): NA montante − NA jusante [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        },
+        "n_f": {
+          "description": "Número de canais de fluxo da rede (N_F) [-]",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            }
+          ]
+        },
+        "n_d": {
+          "description": "Número de quedas de potencial da rede (N_D) [-]",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            }
+          ]
+        },
+        "comprimento": {
+          "description": "Comprimento da barragem (opcional; sem ele, vazão por metro) [m]",
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "properties": {
+                "valor": {
+                  "type": "number"
+                },
+                "unidade": {
+                  "enum": [
+                    "m",
+                    "cm",
+                    "mm",
+                    "km"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "description": "Valor em outra unidade; os limites valem após a conversão para a unidade padrão.",
+              "required": [
+                "valor"
+              ]
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Vazão de percolação pela rede de fluxo",
+      "description": "AP, Nota 11 – Fluxo de rede e gradiente hidráulico",
+      "required": [
+        "k",
+        "perda_carga_total",
+        "n_f",
+        "n_d"
+      ]
+    }
+  }
+}

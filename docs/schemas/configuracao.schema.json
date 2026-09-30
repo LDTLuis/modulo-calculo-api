@@ -1,0 +1,494 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/LDTLuis/modulo-calculo-api/blob/main/docs/schemas/configuracao.schema.json",
+  "title": "Configuração publicada pela Central (contrato 1.0)",
+  "type": "object",
+  "required": [
+    "versao"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "versao": {
+      "type": [
+        "string",
+        "integer"
+      ],
+      "minLength": 1,
+      "description": "Revisão da configuração; devolvida em versao_config."
+    },
+    "fuso_padrao": {
+      "type": "string",
+      "pattern": "^[+-]\\d{2}:\\d{2}$",
+      "default": "-03:00"
+    },
+    "medicoes": {
+      "type": "object",
+      "properties": {
+        "tolerancia_futuro_s": {
+          "type": "number",
+          "minimum": 0,
+          "default": 300
+        },
+        "fator_tolerancia_lacuna": {
+          "type": "number",
+          "minimum": 1,
+          "default": 1.5
+        }
+      },
+      "additionalProperties": false
+    },
+    "padroes_por_tipo": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "nivel",
+          "pressao",
+          "vazao",
+          "deslocamento"
+        ]
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "faixa": {
+            "$ref": "#/$defs/faixa"
+          },
+          "frequencia_esperada_s": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sensores": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/sensor"
+      }
+    },
+    "monitoramento": {
+      "type": "object",
+      "properties": {
+        "anomalia": {
+          "type": "object",
+          "properties": {
+            "ativo": {
+              "type": "boolean",
+              "default": true
+            },
+            "janela_leituras": {
+              "type": "integer",
+              "minimum": 3,
+              "default": 24
+            },
+            "minimo_leituras": {
+              "type": "integer",
+              "minimum": 3,
+              "default": 8,
+              "description": "≤ janela_leituras"
+            },
+            "limiar_z": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 3.5
+            }
+          },
+          "additionalProperties": false
+        },
+        "sensor_travado": {
+          "type": "object",
+          "properties": {
+            "ativo": {
+              "type": "boolean",
+              "default": false
+            },
+            "leituras_consecutivas": {
+              "type": "integer",
+              "minimum": 2,
+              "default": 12
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "limites_calculo": {
+      "type": "object",
+      "properties": {
+        "borda_livre_min": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1.0,
+          "description": "Borda livre mínima acima do NA máximo (m)",
+          "x-calculos": [
+            "geometria.borda_livre"
+          ]
+        },
+        "cri_limite_alto": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 60.0,
+          "description": "CRI a partir do qual a categoria de risco é ALTA",
+          "x-calculos": [
+            "classificacao.risco"
+          ]
+        },
+        "cri_limite_medio": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 35.0,
+          "description": "CRI acima do qual a categoria de risco é MÉDIA",
+          "x-calculos": [
+            "classificacao.risco"
+          ]
+        },
+        "dpa_limite_alto": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 16.0,
+          "description": "DPA a partir do qual o dano potencial é ALTO",
+          "x-calculos": [
+            "classificacao.risco"
+          ]
+        },
+        "dpa_limite_medio": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 10.0,
+          "description": "DPA acima do qual o dano potencial é MÉDIO",
+          "x-calculos": [
+            "classificacao.enquadramento_pnsb",
+            "classificacao.risco"
+          ]
+        },
+        "ec_item_risco_alto": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 10.0,
+          "description": "Pontuação de um item de EC que torna o risco ALTO automaticamente",
+          "x-calculos": [
+            "classificacao.risco"
+          ]
+        },
+        "fator_filtro_terzaghi": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 5.0,
+          "description": "Fator dos critérios de filtro de Terzaghi",
+          "x-calculos": [
+            "percolacao.filtro_terzaghi"
+          ]
+        },
+        "fs_min_deslizamento": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1.5,
+          "description": "Fator de segurança n contra escorregamento (P·f ≥ E·n)",
+          "x-calculos": [
+            "estabilidade.gravidade_deslizamento"
+          ]
+        },
+        "fs_min_piping": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1.5,
+          "description": "FS mínimo contra areia movediça/piping (i_crit / i_saída)",
+          "x-calculos": [
+            "percolacao.piping"
+          ]
+        },
+        "fs_min_talude": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1.5,
+          "description": "FS mínimo de estabilidade de taludes (NBR 11.682)",
+          "x-calculos": [
+            "estabilidade.talude_fellenius",
+            "estabilidade.talude_bishop"
+          ]
+        },
+        "largura_min_crista": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 2.5,
+          "description": "Largura mínima da crista (m)",
+          "x-calculos": [
+            "geometria.secao_macico"
+          ]
+        },
+        "relacao_min_agua_terra": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 3.0,
+          "description": "Relação mínima volume de água : volume de terra",
+          "x-calculos": [
+            "geometria.volume_terra"
+          ]
+        },
+        "talude_min_jusante": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 2.0,
+          "description": "Inclinação mínima recomendada do talude de jusante (H:V)",
+          "x-calculos": [
+            "geometria.secao_macico"
+          ]
+        },
+        "talude_min_montante": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 3.0,
+          "description": "Inclinação mínima recomendada do talude de montante (H:V)",
+          "x-calculos": [
+            "geometria.secao_macico"
+          ]
+        },
+        "zas_distancia_max_km": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 10.0,
+          "description": "Extensão máxima da ZAS a jusante (km)",
+          "x-calculos": [
+            "emergencia.zas"
+          ]
+        },
+        "zas_tempo_chegada_min": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 30.0,
+          "description": "Tempo de chegada da onda que delimita a ZAS (min)",
+          "x-calculos": [
+            "emergencia.zas"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "description": "Critérios de aceitação dos cálculos (M4+)."
+    },
+    "barragem_parametros": {
+      "description": "Reservado (M3–M7); aceito e ainda não usado."
+    },
+    "classificacao": {
+      "description": "Reservado (M8); aceito e ainda não usado."
+    }
+  },
+  "$defs": {
+    "faixa": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "max": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "unidade": {
+          "enum": [
+            "L/h",
+            "L/min",
+            "L/s",
+            "MPa",
+            "Pa",
+            "bar",
+            "cm",
+            "kPa",
+            "km",
+            "m",
+            "m3/h",
+            "m3/s",
+            "mca",
+            "mm",
+            "psi"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "description": "Faixa plausível do instrumento; min ≤ max; unidade compatível com o tipo (padrão: canônica).",
+      "anyOf": [
+        {
+          "required": [
+            "min"
+          ]
+        },
+        {
+          "required": [
+            "max"
+          ]
+        }
+      ]
+    },
+    "niveis": {
+      "type": "object",
+      "properties": {
+        "aviso": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "alerta": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "critico": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "description": "Ao menos um nível; acima: aviso ≤ alerta ≤ critico; abaixo: aviso ≥ alerta ≥ critico.",
+      "minProperties": 1
+    },
+    "sensor": {
+      "type": "object",
+      "properties": {
+        "tipo": {
+          "enum": [
+            "nivel",
+            "pressao",
+            "vazao",
+            "deslocamento"
+          ]
+        },
+        "faixa": {
+          "$ref": "#/$defs/faixa"
+        },
+        "frequencia_esperada_s": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "limites_alerta": {
+          "type": "object",
+          "properties": {
+            "unidade": {
+              "enum": [
+                "L/h",
+                "L/min",
+                "L/s",
+                "MPa",
+                "Pa",
+                "bar",
+                "cm",
+                "kPa",
+                "km",
+                "m",
+                "m3/h",
+                "m3/s",
+                "mca",
+                "mm",
+                "psi"
+              ]
+            },
+            "acima": {
+              "$ref": "#/$defs/niveis"
+            },
+            "abaixo": {
+              "$ref": "#/$defs/niveis"
+            }
+          },
+          "additionalProperties": false,
+          "anyOf": [
+            {
+              "required": [
+                "acima"
+              ]
+            },
+            {
+              "required": [
+                "abaixo"
+              ]
+            }
+          ]
+        },
+        "taxa_variacao": {
+          "type": "object",
+          "properties": {
+            "unidade": {
+              "enum": [
+                "L/h",
+                "L/min",
+                "L/s",
+                "MPa",
+                "Pa",
+                "bar",
+                "cm",
+                "kPa",
+                "km",
+                "m",
+                "m3/h",
+                "m3/s",
+                "mca",
+                "mm",
+                "psi"
+              ]
+            },
+            "intervalo_s": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 86400.0
+            },
+            "direcao": {
+              "enum": [
+                "subida",
+                "descida",
+                "ambas"
+              ],
+              "default": "ambas"
+            },
+            "aviso": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "alerta": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "critico": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "additionalProperties": false,
+          "description": "Magnitudes positivas e crescentes; ao menos um nível.",
+          "anyOf": [
+            {
+              "required": [
+                "aviso"
+              ]
+            },
+            {
+              "required": [
+                "alerta"
+              ]
+            },
+            {
+              "required": [
+                "critico"
+              ]
+            }
+          ]
+        },
+        "cota_instalacao_m": {
+          "type": "number",
+          "description": "Reservado (M3); aceito e ainda não usado."
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tipo"
+      ]
+    }
+  }
+}
