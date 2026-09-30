@@ -43,4 +43,11 @@ jobs:
           # seção "## [x.y.z] ..." do CHANGELOG até a próxima "## ["
           awk -v cab="## [$versao]" 'index($0, cab) == 1 {ok=1; next} ok && index($0, "## [") == 1 {exit} ok' CHANGELOG.md > notas.md
           if [ ! -s notas.md ]; then echo "::error::CHANGELOG.md sem a seção [$versao]"; exit 1; fi
-          gh release create "$GITHUB_REF_NAME" dist/* --title "Motor de cálculo DAMIQ $GITHUB_REF_NAME" --notes-file notas.md
+          # pacote + PDFs da documentação + JSON Schemas como arquivos da release
+          gh release create "$GITHUB_REF_NAME" \
+            dist/* \
+            docs/documentacao-motor-calculo.pdf \
+            docs/central/guia-configuracao.pdf \
+            docs/schemas/*.schema.json \
+            --title "Motor de cálculo DAMIQ $GITHUB_REF_NAME" \
+            --notes-file notas.md
