@@ -27,6 +27,7 @@ class Entrada:
     minimo: float | None = None
     minimo_inclusivo: bool = True
     maximo: float | None = None
+    maximo_inclusivo: bool = True
     inteiro: bool = False
     padrao: float | None = None  # com padrão, o campo é opcional
     opcional: bool = False  # opcional sem padrão: a função recebe None
@@ -38,6 +39,7 @@ class Entrada:
     def para_dict(self) -> dict:
         return {
             "nome": self.nome,
+            "tipo": "numero",
             "descricao": self.descricao,
             "unidade": self.unidade,
             "unidades_aceitas": unidades.unidades_da_dimensao(unidades.dimensao(self.unidade))
@@ -48,7 +50,35 @@ class Entrada:
             "minimo": self.minimo,
             "minimo_inclusivo": self.minimo_inclusivo,
             "maximo": self.maximo,
+            "maximo_inclusivo": self.maximo_inclusivo,
             "inteiro": self.inteiro,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class EntradaTabela:
+    """Lista de linhas com colunas numéricas (ex.: as fatias de uma superfície de ruptura).
+
+    Na requisição: [{"coluna": valor | {"valor", "unidade"}, ...}, ...]. A função recebe uma
+    lista de dicts com os valores convertidos para a unidade canônica de cada coluna.
+    """
+
+    nome: str
+    descricao: str
+    colunas: tuple[Entrada, ...]
+    min_linhas: int = 1
+    unidade = None
+    padrao = None
+    obrigatoria = True
+
+    def para_dict(self) -> dict:
+        return {
+            "nome": self.nome,
+            "tipo": "tabela",
+            "descricao": self.descricao,
+            "obrigatoria": True,
+            "min_linhas": self.min_linhas,
+            "colunas": [c.para_dict() for c in self.colunas],
         }
 
 
@@ -116,8 +146,20 @@ class Memoria:
     passos: list[Passo] = field(default_factory=list)
     premissas: list[str] = field(default_factory=list)
     conclusoes: list[str] = field(default_factory=list)
+    # Tabelas de apoio ao relatório (ex.: cálculo fatia a fatia)
+    tabelas: list[dict] = field(default_factory=list)
     # nome -> (valor, origem); preenchido por `executar` com os limites declarados pelo cálculo
     limites: dict[str, tuple[float, str]] = field(default_factory=dict)
+
+    def tabela(self, titulo: str, colunas: list[tuple[str, str]], linhas: list[list[float]]) -> None:
+        """`colunas` = [(nome, unidade), ...]; cada linha tem um valor por coluna."""
+        self.tabelas.append(
+            {
+                "titulo": titulo,
+                "colunas": [{"nome": n, "unidade": u} for n, u in colunas],
+                "linhas": linhas,
+            }
+        )
 
     def passo(self, descricao: str, formula: str, substituicao: str, valor: float, unidade: str) -> float:
         """Registra o passo e devolve o valor, para encadear: `x = mem.passo(...)`."""
@@ -273,12 +315,15 @@ def executar(
             memoria.limites[lim.nome] = (lim.padrao, "padrão do motor")
     for entrada in definicao.entradas:
         try:
+            if isinstance(entrada, EntradaTabela):
+                valores[entrada.nome] = _ler_tabela(entrada, brutas.get(entrada.nome), memoria)
+                continue
             valores[entrada.nome] = _ler_entrada(entrada, brutas.get(entrada.nome))
         except ErroEntradas as e:
             erros += e.erros
             continue
         if entrada.nome not in brutas and entrada.padrao is not None:
-            memoria.premissa(f"{entrada.nome} = {fmt(entrada.padrao)} {entrada.unidade} (padrão)")
+            memoria.premissa(f"{entrada.nome} = {_com_unidade(entrada.padrao, entrada.unidade)} (padrão)")
     if erros:
         raise ErroEntradas(erros)
 
@@ -286,8 +331,45 @@ def executar(
     return ResultadoCalculo(definicao, valores, resultados, memoria)
 
 
-def _ler_entrada(entrada: Entrada, bruto: object) -> float | None:
-    nome = entrada.nome
+def _com_unidade(valor: float, unidade: str) -> str:
+    return fmt(valor) if unidade == "-" else f"{fmt(valor)} {unidade}"
+
+
+def _ler_tabela(tabela: EntradaTabela, bruto: object, memoria: Memoria) -> list[dict[str, float | None]]:
+    if bruto is None:
+        raise erro_campo(tabela.nome, "campo obrigatório", "CAMPO_AUSENTE")
+    if not isinstance(bruto, list):
+        raise erro_campo(tabela.nome, "deve ser uma lista de linhas")
+    if len(bruto) < tabela.min_linhas:
+        raise erro_campo(tabela.nome, f"informe ao menos {tabela.min_linhas} linha(s)", "FORA_DO_INTERVALO")
+
+    erros: list[dict] = []
+    linhas: list[dict[str, float | None]] = []
+    nomes = {c.nome for c in tabela.colunas}
+    for i, linha_bruta in enumerate(bruto):
+        prefixo = f"{tabela.nome}[{i}]"
+        if not isinstance(linha_bruta, Mapping):
+            erros.append({"campo": prefixo, "codigo": "VALOR_INVALIDO", "mensagem": "linha deve ser um objeto"})
+            continue
+        for extra in linha_bruta.keys() - nomes:
+            erros.append({"campo": f"{prefixo}.{extra}", "codigo": "CAMPO_DESCONHECIDO", "mensagem": "coluna não pertence a esta tabela"})
+        linha: dict[str, float | None] = {}
+        for coluna in tabela.colunas:
+            try:
+                linha[coluna.nome] = _ler_entrada(coluna, linha_bruta.get(coluna.nome), f"{prefixo}.{coluna.nome}")
+            except ErroEntradas as e:
+                erros += e.erros
+                continue
+            if coluna.nome not in linha_bruta and coluna.padrao is not None:
+                memoria.premissa(f"{tabela.nome}.{coluna.nome} = {_com_unidade(coluna.padrao, coluna.unidade)} (padrão)")
+        linhas.append(linha)
+    if erros:
+        raise ErroEntradas(erros)
+    return linhas
+
+
+def _ler_entrada(entrada: Entrada, bruto: object, campo: str | None = None) -> float | None:
+    nome = campo or entrada.nome
     if bruto is None:
         if entrada.obrigatoria:
             raise erro_campo(nome, "campo obrigatório", "CAMPO_AUSENTE")
@@ -304,7 +386,7 @@ def _ler_entrada(entrada: Entrada, bruto: object) -> float | None:
 
     valor = float(bruto)
     if unidade != entrada.unidade:
-        valor = _converter(entrada, valor, unidade)
+        valor = _converter(entrada, valor, unidade, nome)
 
     if entrada.inteiro and not valor.is_integer():
         raise erro_campo(nome, "deve ser um número inteiro")
@@ -312,19 +394,21 @@ def _ler_entrada(entrada: Entrada, bruto: object) -> float | None:
         if valor < entrada.minimo or (not entrada.minimo_inclusivo and valor == entrada.minimo):
             sinal = "≥" if entrada.minimo_inclusivo else ">"
             raise erro_campo(nome, f"deve ser {sinal} {fmt(entrada.minimo)} {entrada.unidade}".rstrip(" -"), "FORA_DO_INTERVALO")
-    if entrada.maximo is not None and valor > entrada.maximo:
-        raise erro_campo(nome, f"deve ser ≤ {fmt(entrada.maximo)} {entrada.unidade}".rstrip(" -"), "FORA_DO_INTERVALO")
+    if entrada.maximo is not None:
+        if valor > entrada.maximo or (not entrada.maximo_inclusivo and valor == entrada.maximo):
+            sinal = "≤" if entrada.maximo_inclusivo else "<"
+            raise erro_campo(nome, f"deve ser {sinal} {fmt(entrada.maximo)} {entrada.unidade}".rstrip(" -"), "FORA_DO_INTERVALO")
     return valor
 
 
-def _converter(entrada: Entrada, valor: float, unidade: object) -> float:
+def _converter(entrada: Entrada, valor: float, unidade: object, campo: str) -> float:
     try:
         if entrada.unidade == "-" or unidades.dimensao(unidade) is not unidades.dimensao(entrada.unidade):  # type: ignore[arg-type]
             raise erro_campo(
-                entrada.nome,
+                campo,
                 f"unidade {unidade!r} incompatível (esperado: {entrada.unidade})",
                 "UNIDADE_INCOMPATIVEL",
             )
         return float(unidades.converter(valor, unidade, entrada.unidade))  # type: ignore[arg-type]
     except UnidadeDesconhecida:
-        raise erro_campo(entrada.nome, f"unidade desconhecida: {unidade!r}", "UNIDADE_DESCONHECIDA") from None
+        raise erro_campo(campo, f"unidade desconhecida: {unidade!r}", "UNIDADE_DESCONHECIDA") from None
