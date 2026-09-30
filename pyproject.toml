@@ -12,7 +12,7 @@ requires-python = ">=3.13"
 dependencies = ["matplotlib>=3.9"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "jsonschema>=4.23"]
 
 [project.scripts]
 damiq-calc = "damiq_calc.adapters.cli:main"

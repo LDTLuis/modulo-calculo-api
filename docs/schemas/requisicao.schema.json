@@ -1,0 +1,821 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/LDTLuis/modulo-calculo-api/blob/main/docs/schemas/requisicao.schema.json",
+  "title": "Requisição ao motor de cálculo (contrato 1.0)",
+  "type": "object",
+  "required": [
+    "versao_contrato",
+    "operacao"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "versao_contrato": {
+      "type": "string",
+      "pattern": "^1\\.\\d+$",
+      "examples": [
+        "1.0"
+      ]
+    },
+    "operacao": {
+      "enum": [
+        "info",
+        "validar_configuracao",
+        "processar_lote",
+        "listar_calculos",
+        "calcular"
+      ]
+    },
+    "barragem": {
+      "type": "object",
+      "description": "Identificação da barragem (livre)."
+    },
+    "configuracao": {
+      "$ref": "configuracao.schema.json"
+    },
+    "opcoes": {
+      "type": "object",
+      "properties": {
+        "agora": {
+          "type": "string",
+          "description": "ISO 8601 com fuso."
+        },
+        "graficos": {
+          "type": "object",
+          "properties": {
+            "diretorio": {
+              "type": "string",
+              "minLength": 1
+            },
+            "formato": {
+              "enum": [
+                "png",
+                "svg"
+              ],
+              "default": "png"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "diretorio"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "medicoes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/medicao"
+      }
+    },
+    "historico": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/medicao"
+      }
+    },
+    "calculo": {
+      "enum": [
+        "classificacao.enquadramento_pnsb",
+        "classificacao.risco",
+        "emergencia.nivel_resposta",
+        "emergencia.zas",
+        "estabilidade.gravidade_deslizamento",
+        "estabilidade.gravidade_resultante",
+        "estabilidade.talude_bishop",
+        "estabilidade.talude_fellenius",
+        "geometria.borda_livre",
+        "geometria.secao_macico",
+        "geometria.volume_terra",
+        "hidrologia.curva_cota_volume",
+        "hidrologia.extravasor",
+        "hidrologia.indice_demanda",
+        "hidrologia.metodo_racional",
+        "hidrologia.periodo_retorno",
+        "hidrologia.vazao_medida",
+        "hidrologia.volume_secoes",
+        "hidrostatica.carga_rede_fluxo",
+        "hidrostatica.empuxo",
+        "hidrostatica.piezometro",
+        "hidrostatica.pressao",
+        "hidrostatica.subpressao",
+        "opcionais.balanco_hidrico",
+        "opcionais.evapotranspiracao_fao56",
+        "opcionais.pico_ruptura_froehlich",
+        "opcionais.vertedor_retangular",
+        "opcionais.vertedor_triangular",
+        "percolacao.darcy",
+        "percolacao.filtro_terzaghi",
+        "percolacao.piping",
+        "percolacao.vazao_rede_fluxo"
+      ]
+    },
+    "entradas": {
+      "type": "object"
+    },
+    "modulo": {
+      "enum": [
+        "classificacao",
+        "emergencia",
+        "estabilidade",
+        "geometria",
+        "hidrologia",
+        "hidrostatica",
+        "opcionais",
+        "percolacao"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "operacao": {
+            "const": "validar_configuracao"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "configuracao"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operacao": {
+            "const": "processar_lote"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "medicoes"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operacao": {
+            "const": "calcular"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "calculo"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "classificacao.enquadramento_pnsb"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/classificacao.enquadramento_pnsb"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "classificacao.risco"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/classificacao.risco"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "emergencia.nivel_resposta"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/emergencia.nivel_resposta"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "emergencia.zas"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/emergencia.zas"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "estabilidade.gravidade_deslizamento"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/estabilidade.gravidade_deslizamento"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "estabilidade.gravidade_resultante"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/estabilidade.gravidade_resultante"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "estabilidade.talude_bishop"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/estabilidade.talude_bishop"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "estabilidade.talude_fellenius"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/estabilidade.talude_fellenius"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "geometria.borda_livre"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/geometria.borda_livre"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "geometria.secao_macico"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/geometria.secao_macico"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "geometria.volume_terra"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/geometria.volume_terra"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrologia.curva_cota_volume"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrologia.curva_cota_volume"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrologia.extravasor"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrologia.extravasor"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrologia.indice_demanda"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrologia.indice_demanda"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrologia.metodo_racional"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrologia.metodo_racional"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrologia.periodo_retorno"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrologia.periodo_retorno"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrologia.vazao_medida"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrologia.vazao_medida"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrologia.volume_secoes"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrologia.volume_secoes"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrostatica.carga_rede_fluxo"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrostatica.carga_rede_fluxo"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrostatica.empuxo"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrostatica.empuxo"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrostatica.piezometro"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrostatica.piezometro"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrostatica.pressao"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrostatica.pressao"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "hidrostatica.subpressao"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/hidrostatica.subpressao"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "opcionais.balanco_hidrico"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/opcionais.balanco_hidrico"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "opcionais.evapotranspiracao_fao56"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/opcionais.evapotranspiracao_fao56"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "opcionais.pico_ruptura_froehlich"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/opcionais.pico_ruptura_froehlich"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "opcionais.vertedor_retangular"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/opcionais.vertedor_retangular"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "opcionais.vertedor_triangular"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/opcionais.vertedor_triangular"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "percolacao.darcy"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/percolacao.darcy"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "percolacao.filtro_terzaghi"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/percolacao.filtro_terzaghi"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "percolacao.piping"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/percolacao.piping"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculo": {
+            "const": "percolacao.vazao_rede_fluxo"
+          }
+        },
+        "required": [
+          "calculo"
+        ]
+      },
+      "then": {
+        "properties": {
+          "entradas": {
+            "$ref": "calculos.schema.json#/$defs/percolacao.vazao_rede_fluxo"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "medicao": {
+      "type": "object",
+      "properties": {
+        "sensor": {
+          "type": [
+            "string",
+            "integer"
+          ]
+        },
+        "tipo": {
+          "type": "string",
+          "description": "Um de ['nivel', 'pressao', 'vazao', 'deslocamento'] (aceita acento e maiúsculas)."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO 8601; sem offset, vale configuracao.fuso_padrao."
+        },
+        "valor": {
+          "type": [
+            "number",
+            "string"
+          ],
+          "description": "Número; texto aceita vírgula decimal (\"12,5\")."
+        },
+        "unidade": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Registros inválidos não reprovam a requisição: voltam em `rejeicoes`.",
+      "required": [
+        "sensor",
+        "tipo",
+        "timestamp",
+        "valor",
+        "unidade"
+      ]
+    }
+  }
+}

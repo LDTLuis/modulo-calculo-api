@@ -1,0 +1,441 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/LDTLuis/modulo-calculo-api/blob/main/docs/schemas/resposta.schema.json",
+  "title": "Resposta do motor de cálculo (contrato 1.0)",
+  "description": "Campos novos podem surgir em versões 1.x: consumidores devem ignorar o que não conhecem.",
+  "type": "object",
+  "required": [
+    "versao_contrato",
+    "operacao",
+    "status",
+    "versao_config",
+    "avisos",
+    "resultados",
+    "alertas",
+    "rejeicoes",
+    "graficos",
+    "erros"
+  ],
+  "properties": {
+    "versao_contrato": {
+      "type": "string"
+    },
+    "operacao": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "OK",
+        "ERRO"
+      ]
+    },
+    "versao_config": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ]
+    },
+    "avisos": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/aviso"
+      }
+    },
+    "erros": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/erro"
+      }
+    },
+    "resultados": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resultado"
+      }
+    },
+    "alertas": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/alerta"
+      }
+    },
+    "rejeicoes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rejeicao"
+      }
+    },
+    "rejeicoes_historico": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rejeicao"
+      }
+    },
+    "graficos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "tipo",
+          "arquivo"
+        ],
+        "properties": {
+          "tipo": {
+            "type": "string"
+          },
+          "sensor": {
+            "type": "string"
+          },
+          "arquivo": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status_calculo": {
+      "enum": [
+        "OK",
+        "AVISO",
+        "ALERTA",
+        "CRITICO"
+      ]
+    },
+    "memoria": {
+      "type": "object",
+      "required": [
+        "passos",
+        "premissas",
+        "conclusoes",
+        "tabelas"
+      ],
+      "properties": {
+        "passos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "descricao",
+              "formula",
+              "substituicao",
+              "valor",
+              "unidade"
+            ],
+            "properties": {
+              "descricao": {
+                "type": "string"
+              },
+              "formula": {
+                "type": "string"
+              },
+              "substituicao": {
+                "type": "string"
+              },
+              "valor": {
+                "type": "number"
+              },
+              "unidade": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "premissas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conclusoes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tabelas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "titulo",
+              "colunas",
+              "linhas"
+            ]
+          }
+        }
+      }
+    },
+    "monitoramento": {
+      "type": "object",
+      "required": [
+        "status_barragem",
+        "status_dados",
+        "nivel_resposta",
+        "sensores"
+      ],
+      "properties": {
+        "status_barragem": {
+          "enum": [
+            "OK",
+            "AVISO",
+            "ALERTA",
+            "CRITICO"
+          ]
+        },
+        "status_dados": {
+          "enum": [
+            "OK",
+            "AVISO",
+            "ALERTA",
+            "CRITICO"
+          ]
+        },
+        "nivel_resposta": {
+          "type": "object",
+          "required": [
+            "nivel",
+            "cor",
+            "rotulo",
+            "situacao",
+            "acoes"
+          ],
+          "properties": {
+            "nivel": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "cor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "rotulo": {
+              "type": "string"
+            },
+            "situacao": {
+              "type": "string"
+            },
+            "acoes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "sensores": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "tipo",
+              "ultima_leitura",
+              "status_atual",
+              "status_maximo"
+            ],
+            "properties": {
+              "status_atual": {
+                "enum": [
+                  "OK",
+                  "AVISO",
+                  "ALERTA",
+                  "CRITICO"
+                ]
+              },
+              "status_maximo": {
+                "enum": [
+                  "OK",
+                  "AVISO",
+                  "ALERTA",
+                  "CRITICO"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "aviso": {
+      "type": "object",
+      "required": [
+        "codigo",
+        "campo",
+        "mensagem"
+      ],
+      "properties": {
+        "codigo": {
+          "type": "string"
+        },
+        "campo": {
+          "type": "string"
+        },
+        "mensagem": {
+          "type": "string"
+        }
+      }
+    },
+    "erro": {
+      "type": "object",
+      "required": [
+        "codigo",
+        "mensagem",
+        "campo"
+      ],
+      "properties": {
+        "codigo": {
+          "type": "string"
+        },
+        "mensagem": {
+          "type": "string"
+        },
+        "campo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "resultado": {
+      "type": "object",
+      "required": [
+        "calculo",
+        "descricao",
+        "valor",
+        "unidade",
+        "status",
+        "limite",
+        "premissas",
+        "fonte",
+        "rotulo"
+      ],
+      "properties": {
+        "calculo": {
+          "type": "string"
+        },
+        "descricao": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "valor": {
+          "type": "number"
+        },
+        "unidade": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "OK",
+            "AVISO",
+            "ALERTA",
+            "CRITICO"
+          ]
+        },
+        "limite": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "premissas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fonte": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rotulo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "alerta": {
+      "type": "object",
+      "required": [
+        "tipo",
+        "categoria",
+        "sensor",
+        "severidade",
+        "inicio",
+        "fim",
+        "leituras",
+        "valor_extremo",
+        "unidade",
+        "limite",
+        "direcao",
+        "leitura_suspeita",
+        "mensagem",
+        "detalhe"
+      ],
+      "properties": {
+        "tipo": {
+          "enum": [
+            "LIMITE",
+            "TAXA_VARIACAO",
+            "FORA_FAIXA_PLAUSIVEL",
+            "SENSOR_TRAVADO",
+            "ANOMALIA_ESTATISTICA"
+          ]
+        },
+        "categoria": {
+          "enum": [
+            "SEGURANCA",
+            "QUALIDADE"
+          ]
+        },
+        "severidade": {
+          "enum": [
+            "OK",
+            "AVISO",
+            "ALERTA",
+            "CRITICO"
+          ]
+        },
+        "leituras": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "leitura_suspeita": {
+          "type": "boolean"
+        }
+      }
+    },
+    "rejeicao": {
+      "type": "object",
+      "required": [
+        "indice",
+        "codigo",
+        "mensagem"
+      ],
+      "properties": {
+        "indice": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "codigo": {
+          "type": "string"
+        },
+        "mensagem": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
