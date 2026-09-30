@@ -32,6 +32,7 @@ def resposta_base(operacao: str | None, config: Configuracao | None = None) -> d
         "operacao": operacao,
         "status": "OK",
         "versao_config": config.versao if config else None,
+        "avisos": list(config.avisos) if config else [],
         "resultados": [],
         "alertas": [],
         "rejeicoes": [],

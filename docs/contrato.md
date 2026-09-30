@@ -66,6 +66,17 @@ Os nomes dos tipos aceitam acento e maiúsculas ("Pressão", "NÍVEL"). As unida
 
 A seção inteira é opcional. Sem ela, o motor usa os padrões da tabela abaixo e responde `versao_config: null`.
 
+**Campos desconhecidos:** um campo que o motor não reconhece (ex.: `limite_alerta` no lugar de `limites_alerta`, ou `fs_min_pipping` em `limites_calculo`) **não** interrompe o processamento. Ele é ignorado e aparece em `avisos` na resposta:
+
+```json
+"avisos": [
+  { "codigo": "CAMPO_DESCONHECIDO", "campo": "configuracao.sensores.PZ-01.limite_alerta",
+    "mensagem": "campo não reconhecido por esta versão do motor; foi ignorado" }
+]
+```
+
+O Desktop deve registrar esses avisos no log (RF-12) e, de preferência, exibi-los ao administrador. Os campos reservados (seção 3.8) são aceitos sem aviso.
+
 ### 3.1 Campos gerais
 
 | Campo | Tipo | Obrigatório | Padrão | Regra |
@@ -198,7 +209,7 @@ São os critérios de aceitação dos cálculos de engenharia, definidos pelo en
 
 ### 3.8 Campos reservados (próximas versões)
 
-A Central já pode planejar as telas para estes campos. O motor 1.0 **ignora** chaves que ainda não conhece.
+A Central já pode planejar as telas para estes campos. O motor 1.0 os aceita sem usá-los e sem gerar aviso.
 
 | Campo (por sensor) | Módulo | Descrição prevista |
 |---|---|---|

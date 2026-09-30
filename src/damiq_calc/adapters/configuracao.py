@@ -45,6 +45,8 @@ class Configuracao:
     monitoramento: ConfigMonitoramento = ConfigMonitoramento()
     # Critérios dos cálculos (ex.: {"fs_min_piping": 1.5}); nomes em `listar_calculos`.
     limites_calculo: dict[str, float] = field(default_factory=dict)
+    # Campos não reconhecidos (ignorados): [{"codigo", "campo", "mensagem"}]
+    avisos: tuple[dict, ...] = ()
 
     def frequencia_do_sensor(self, sensor: str, tipo: TipoMedicao) -> timedelta | None:
         config = self.sensores.get(sensor)
@@ -129,7 +131,66 @@ def ler_configuracao(requisicao: Mapping) -> Configuracao:
         sensores=sensores,
         monitoramento=_monitoramento(bruto, regras),
         limites_calculo=_limites_calculo(bruto),
+        avisos=tuple(_campos_desconhecidos(bruto, _estrutura(), SECAO)),
     )
+
+
+# --- campos desconhecidos ------------------------------------------------------------------
+# Estrutura aceita pela seção. Folha = None; "*" = qualquer chave (ids de sensor, tipos);
+# RESERVADO = campo previsto para versões futuras, aceito sem aviso.
+
+RESERVADO = object()
+_FAIXA = {"min": None, "max": None, "unidade": None}
+_NIVEIS = {"aviso": None, "alerta": None, "critico": None}
+
+
+def _estrutura() -> dict:
+    from damiq_calc.catalogo import REGISTRO  # import tardio: o catálogo carrega todos os módulos
+
+    limites = {lim.nome: None for d in REGISTRO.values() for lim in d.limites}
+    return {
+        "versao": None,
+        "fuso_padrao": None,
+        "medicoes": {"tolerancia_futuro_s": None, "fator_tolerancia_lacuna": None},
+        "padroes_por_tipo": {"*": {"faixa": _FAIXA, "frequencia_esperada_s": None}},
+        "sensores": {
+            "*": {
+                "tipo": None,
+                "faixa": _FAIXA,
+                "frequencia_esperada_s": None,
+                "limites_alerta": {"unidade": None, "acima": _NIVEIS, "abaixo": _NIVEIS},
+                "taxa_variacao": {"unidade": None, "intervalo_s": None, "direcao": None, **_NIVEIS},
+                "cota_instalacao_m": RESERVADO,
+            }
+        },
+        "monitoramento": {
+            "anomalia": {"ativo": None, "janela_leituras": None, "minimo_leituras": None, "limiar_z": None},
+            "sensor_travado": {"ativo": None, "leituras_consecutivas": None},
+        },
+        "limites_calculo": limites,
+        "barragem_parametros": RESERVADO,
+        "classificacao": RESERVADO,
+    }
+
+
+def _campos_desconhecidos(valor: object, estrutura: object, caminho: str):
+    """Gera um aviso por chave que não pertence à estrutura aceita (e não desce nelas)."""
+    if not isinstance(estrutura, dict) or not isinstance(valor, Mapping):
+        return
+    for chave, filho in valor.items():
+        if chave in estrutura:
+            sub = estrutura[chave]
+        elif "*" in estrutura:
+            sub = estrutura["*"]
+        else:
+            yield {
+                "codigo": "CAMPO_DESCONHECIDO",
+                "campo": f"{caminho}.{chave}",
+                "mensagem": "campo não reconhecido por esta versão do motor; foi ignorado",
+            }
+            continue
+        if sub is not RESERVADO:
+            yield from _campos_desconhecidos(filho, sub, f"{caminho}.{chave}")
 
 
 def _limites_calculo(bruto: Mapping) -> dict[str, float]:
