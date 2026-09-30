@@ -73,7 +73,8 @@ src/damiq_calc/
 ├── geometria/      # M7: seção do maciço, crista e taludes, volume de terra, borda livre
 ├── classificacao/  # M8: enquadramento PNSB/SEMAD, CRI, DPA, matriz A–D, periodicidade da RPSB
 ├── emergencia/     # M9: nível de resposta do PAE (0–3, verde/amarelo/vermelho) e ZAS
-└── graficos/       # M10: séries temporais com limites e curva cota–área–volume (Matplotlib, PNG/SVG)
+├── graficos/       # M10: séries temporais com limites e curva cota–área–volume (Matplotlib, PNG/SVG)
+└── opcionais/      # M11 [LIT]: vertedores, ET0 FAO-56, balanço hídrico, pico de ruptura (Froehlich)
 # core/calculo.py: entradas, memória de cálculo e registro dos cálculos; catalogo.py: índice
 ```
 
