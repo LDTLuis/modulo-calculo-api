@@ -1,6 +1,6 @@
 # damiq-calc — Motor de Cálculo DAMIQ
 
-Serviço Python chamado pelo Desktop (Java, via `ProcessBuilder`) para validar medições e executar os cálculos de segurança de barragens. Módulos planejados: [docs/modulos-motor-calculo.md](docs/modulos-motor-calculo.md).
+Serviço Python chamado pelo Desktop (Java, via `ProcessBuilder`) para validar medições e executar os cálculos de segurança de barragens. Módulos: [docs/modulos-motor-calculo.md](docs/modulos-motor-calculo.md) · documentação completa em PDF: [docs/documentacao-motor-calculo.pdf](docs/documentacao-motor-calculo.pdf).
 
 ## Ambiente
 
