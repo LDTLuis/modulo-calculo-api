@@ -194,6 +194,7 @@ São os critérios de aceitação dos cálculos de engenharia, definidos pelo en
 | `cri_limite_alto` / `cri_limite_medio` | 60 / 35 | `classificacao.risco` (**conferir com as tabelas da apostila**) |
 | `ec_item_risco_alto` | 10 | `classificacao.risco` |
 | `dpa_limite_alto` / `dpa_limite_medio` | 16 / 10 | `classificacao.risco`, `classificacao.enquadramento_pnsb` (**conferir**) |
+| `zas_distancia_max_km` / `zas_tempo_chegada_min` | 10 km / 30 min | `emergencia.zas` |
 
 ### 3.8 Campos reservados (próximas versões)
 
@@ -267,6 +268,7 @@ Cada alerta é um **episódio**: leituras consecutivas do mesmo sensor que dispa
 - **`status_barragem`** é a maior severidade entre os alertas de SEGURANCA. **`status_dados`** é a maior entre os de QUALIDADE. Assim, um sensor com defeito não coloca a barragem em alerta.
 - **Leitura suspeita:** uma leitura fora da faixa plausível **continua** sendo avaliada contra os limites (postura conservadora), e o alerta de limite vem com `leitura_suspeita: true`, para o operador verificar o instrumento antes de acionar o PAE.
 - **Situação de cada sensor:** `status_atual` é o limite atingido na última leitura do lote (para o dashboard). `status_maximo` é o pior alerta de segurança do lote.
+- **`monitoramento.nivel_resposta`** traduz o `status_barragem` no nível de resposta do PAE: `{"nivel", "cor", "rotulo", "situacao", "acoes", "fonte"}` (ex.: ALERTA → Nível 2, amarelo). O Desktop pode exibir as ações recomendadas diretamente no alerta.
 
 Mapeamento proposto (a validar com o professor): OK ↔ Nível 0 · AVISO ↔ Nível 1 / verde · ALERTA ↔ Nível 2 / amarelo · CRITICO ↔ Nível 3 / vermelho.
 
@@ -410,6 +412,8 @@ Códigos: `CAMPO_AUSENTE`, `CAMPO_DESCONHECIDO`, `VALOR_INVALIDO`, `FORA_DO_INTE
 | `geometria.borda_livre` | BL = cota da crista − NA máximo; ALERTA abaixo do mínimo (1,0 m) e CRITICO se BL ≤ 0 (galgamento) | AP Nota 02 (folga de 1,0 m) |
 | `classificacao.enquadramento_pnsb` | Enquadramento na PNSB (altura ≥ 15 m, capacidade ≥ 3 hm³, resíduos perigosos ou DPA médio/alto), com `rotulo` SIM/NÃO, e grupo de cadastramento SEMAD-GO (1, 2 ou 3) | AP Nota 01 (Lei 12.334/2010; IN SEMAD 01/2020) |
 | `classificacao.risco` | CRI = CT + EC + PS e categoria (item de EC = 10 → ALTO automático, CRITICO); categoria do DPA; classe A–D pela matriz da apostila (Alto: A B C · Médio: A C D · Baixo: A D D); periodicidade da RPSB (A 5, B 7, C 10, D 12 anos) | AP Nota 08 (Res. CNRH 143/2012) |
+| `emergencia.nivel_resposta` | Nível de resposta do PAE a partir da severidade (0–3): `rotulo` "Nível 2 – amarelo", situação e ações em `memoria.conclusoes` | AP Nota 07 (art. 27); PAE João Leite |
+| `emergencia.zas` | Extensão da ZAS = mín(10 km; distância alcançada pela onda em 30 min), a partir da tabela `secoes` (distância × tempo de chegada) do estudo de ruptura; AVISO se o estudo não alcança 30 min antes de 10 km | PAE João Leite (critério ANA) |
 
 **Convenções do M5:**
 - As fatias são informadas prontas (largura, peso, α, c', φ', u). A busca automática do círculo crítico fica para uma etapa futura.
