@@ -23,7 +23,7 @@ ESQUEMA = json.loads((RAIZ / "docs/schemas/configuracao.schema.json").read_text(
 SAIDA = RAIZ / "docs/central/guia-configuracao.md"
 
 TIPOS_JSON = {"string": "texto", "integer": "inteiro", "number": "número", "boolean": "booleano", "null": "null", "object": "objeto", "array": "lista"}
-REFS = {"#/$defs/faixa": ("faixa", "3.5"), "#/$defs/niveis": ("níveis", "3.7"), "#/$defs/sensor": ("sensor", "3.4")}
+REFS = {"#/$defs/faixa": ("faixa", "3.5"), "#/$defs/niveis": ("níveis", "3.7"), "#/$defs/sensor": ("instrumento", "3.4")}
 
 EXEMPLO = {
     "versao": 12,
@@ -105,7 +105,7 @@ def tabela_campos(no: dict, prefixo: str = "") -> list[str]:
     linhas = ["| Campo | Tipo | Obrigatório | Padrão | Regras | Descrição |", "|---|---|---|---|---|---|"]
     for nome, filho in no["properties"].items():
         descricao = filho.get("description", "").replace("|", "\\|")
-        tipo = "texto: unidade compatível com o tipo do sensor (§4)" if nome == "unidade" else _tipo(filho)
+        tipo = "texto: unidade compatível com o tipo do instrumento (§4)" if nome == "unidade" else _tipo(filho)
         linhas.append(
             f"| `{prefixo}{nome}` | {tipo} | {'**sim**' if nome in obrigatorios else 'não'} | "
             f"{_valor(filho['default']) if 'default' in filho else '—'} | {_regras(filho)} | {descricao} |"
@@ -154,6 +154,8 @@ def gerar() -> str:
         "",
         "## 1. Visão geral",
         "",
+        '> **Terminologia:** *instrumento* é o ponto de medição instalado na barragem (piezômetro, régua de nível, medidor de vazão, marco de deslocamento). Ele é lido pelo técnico de campo, e as leituras são digitadas ou importadas: não há sensores automáticos. No JSON, os campos mantêm os nomes do contrato 1.0: `sensor` (na medição), `sensores` (na configuração) e `sensor_travado` (detecção de valor repetido).',
+        "",
         "A Central é a **dona dos parâmetros** de monitoramento e dos critérios dos cálculos. Ela publica a configuração, o Desktop guarda a última versão válida (SQLite) e a envia ao motor em toda chamada. O motor não guarda estado e devolve `versao_config` em cada resposta, para que o log registre qual versão gerou cada resultado (RF-12).",
         "",
         "```",
@@ -163,9 +165,9 @@ def gerar() -> str:
         "",
         "| Quem cadastra | O quê |",
         "|---|---|",
-        "| Técnico | Tipo, faixa plausível (ficha do instrumento) e frequência de leitura de cada sensor |",
+        "| Técnico | Tipo, faixa plausível (ficha do instrumento) e frequência de leitura de cada instrumento |",
         "| Engenheiro | Limites de alerta, taxa de variação e critérios dos cálculos (`limites_calculo`) |",
-        "| Administrador | Parâmetros gerais (fuso, tolerâncias, detecção de anomalia e de sensor travado) |",
+        "| Administrador | Parâmetros gerais (fuso, tolerâncias, detecção de anomalia e de instrumento travado) |",
         "",
         "> **Faixa plausível ≠ limite de alerta.** A faixa descreve o que o **instrumento** mede: fora dela, a leitura é mantida e marcada como suspeita (qualidade de dados). Os limites de alerta descrevem a **segurança da barragem** e geram alertas de Aviso/Alerta/Crítico. Não misture os dois num mesmo campo da tela.",
         "",
@@ -179,12 +181,12 @@ def gerar() -> str:
         "├── padroes_por_tipo",
         "│   └── <tipo>                  faixa, frequencia_esperada_s",
         "├── sensores",
-        "│   └── <id do sensor>          tipo, faixa, frequencia_esperada_s, limites_alerta, taxa_variacao",
-        "├── monitoramento              anomalia, sensor_travado",
-        "└── limites_calculo            critérios dos cálculos (FS mínimos etc.)",
+        "│   └── <id do instrumento>     tipo, faixa, frequencia_esperada_s, limites_alerta, taxa_variacao",
+        "├── monitoramento               anomalia, sensor_travado",
+        "└── limites_calculo             critérios dos cálculos (FS mínimos etc.)",
         "```",
         "",
-        "**Prioridade:** o valor do sensor vale primeiro; se não houver, vale o de `padroes_por_tipo`; por último, o padrão do motor.",
+        "**Prioridade:** o valor do instrumento vale primeiro; se não houver, vale o de `padroes_por_tipo`; por último, o padrão do motor.",
         "",
         "## 3. Campos",
         "",
@@ -200,7 +202,7 @@ def gerar() -> str:
         "",
         *tabela_campos(props["padroes_por_tipo"]["additionalProperties"]),
         "",
-        "### 3.4 `sensores.<id>` — sensor",
+        "### 3.4 `sensores.<id>` — instrumento",
         "",
         *tabela_campos(defs["sensor"]),
         "",
@@ -238,7 +240,7 @@ def gerar() -> str:
         "",
         "## 4. Unidades aceitas",
         "",
-        "Toda faixa, limite e taxa aceita `unidade`. O motor converte para a unidade canônica do tipo do sensor. Uma unidade de outra dimensão (ex.: `kPa` num sensor de nível) é recusada.",
+        "Toda faixa, limite e taxa aceita `unidade`. O motor converte para a unidade canônica do tipo do instrumento. Uma unidade de outra dimensão (ex.: `kPa` num instrumento de nível) é recusada.",
         "",
         *unidades_linhas,
         "",
@@ -260,7 +262,7 @@ def gerar() -> str:
         "| `acima`: aviso ≤ alerta ≤ critico · `abaixo`: aviso ≥ alerta ≥ critico | `limites_alerta` |",
         "| Níveis positivos e crescentes | `taxa_variacao` |",
         "| `minimo_leituras ≤ janela_leituras` | `monitoramento.anomalia` |",
-        "| `unidade` compatível com o `tipo` do sensor (§4) | `faixa`, `limites_alerta`, `taxa_variacao` |",
+        "| `unidade` compatível com o `tipo` do instrumento (§4) | `faixa`, `limites_alerta`, `taxa_variacao` |",
         "| Em `padroes_por_tipo`, a unidade da faixa segue o tipo da chave | `padroes_por_tipo.<tipo>.faixa` |",
         "",
         "## 7. Exemplo completo",
@@ -293,7 +295,7 @@ def gerar() -> str:
         "- **Padrões:** os campos `default` do schema são os padrões do motor. A tela pode exibi-los como sugestão; não é preciso enviá-los.",
         "- **Versão:** incremente `versao` a cada publicação (texto ou inteiro). Ela volta em `versao_config` nas respostas do motor e permite rastrear resultados e alertas até a configuração que os gerou.",
         "- **Nomes de critérios:** a lista de `limites_calculo` (§5) vem do catálogo de cálculos. Novos critérios podem surgir em versões 1.x do motor; atualize a tela a partir do schema da versão em uso.",
-        "- **Campos reservados:** `cota_instalacao_m` (sensor), `barragem_parametros` e `classificacao` são aceitos, mas ainda não têm efeito no motor 1.0.",
+        "- **Campos reservados:** `cota_instalacao_m` (instrumento), `barragem_parametros` e `classificacao` são aceitos, mas ainda não têm efeito no motor 1.0.",
         "",
         '<div class="quebra"></div>',
         "",
