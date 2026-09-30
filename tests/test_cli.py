@@ -156,3 +156,65 @@ def test_listar_calculos(tmp_path):
     assert codigo == 0
     empuxo = next(c for c in resp["calculos"] if c["id"] == "hidrostatica.empuxo")
     assert [e["nome"] for e in empuxo["entradas"]] == ["altura_agua", "inclinacao_montante", "comprimento", "gama_w"]
+
+
+# --- validar_configuracao -----------------------------------------------------------------
+
+
+def test_validar_configuracao_ok(tmp_path):
+    codigo, resp = executar(
+        tmp_path,
+        {
+            "versao_contrato": "1.0",
+            "operacao": "validar_configuracao",
+            "configuracao": {
+                "versao": 21,
+                "padroes_por_tipo": {"vazao": {"faixa": {"min": 0}}},
+                "sensores": {
+                    "PZ-01": {"tipo": "pressao", "limites_alerta": {"acima": {"aviso": 180}}},
+                    "RN-01": {"tipo": "nivel"},
+                },
+                "limites_calculo": {"fs_min_piping": 2.0, "fs_min_pipping": 2.0},
+            },
+        },
+    )
+    assert codigo == 0
+    assert resp["versao_config"] == 21
+    assert resp["configuracao"] == {
+        "valida": True,
+        "resumo": {
+            "sensores": 2,
+            "sensores_com_regras_de_alerta": 1,
+            "padroes_por_tipo": ["vazao"],
+            "limites_calculo": ["fs_min_piping", "fs_min_pipping"],
+            "anomalia_estatistica": True,
+            "sensor_travado": False,
+        },
+    }
+    assert [a["campo"] for a in resp["avisos"]] == ["configuracao.limites_calculo.fs_min_pipping"]
+
+
+def test_validar_configuracao_invalida_aponta_o_campo(tmp_path):
+    codigo, resp = executar(
+        tmp_path,
+        {
+            "versao_contrato": "1.0",
+            "operacao": "validar_configuracao",
+            "configuracao": {"versao": 3, "sensores": {"PZ-01": {"tipo": "pressao", "faixa": {"min": 5, "max": 1}}}},
+        },
+    )
+    assert codigo == 1
+    [erro] = resp["erros"]
+    assert erro["codigo"] == "CONTRATO_INVALIDO"
+    assert erro["campo"] == "configuracao.sensores.PZ-01.faixa"
+
+
+def test_validar_configuracao_exige_a_secao(tmp_path):
+    codigo, resp = executar(tmp_path, {"versao_contrato": "1.0", "operacao": "validar_configuracao"})
+    assert codigo == 1
+    assert resp["erros"][0]["campo"] == "configuracao"
+
+
+def test_erro_sem_campo_tem_campo_nulo(tmp_path):
+    _, resp = executar(tmp_path, {"versao_contrato": "1.0", "operacao": "voar"})
+    assert resp["erros"][0]["campo"] is None

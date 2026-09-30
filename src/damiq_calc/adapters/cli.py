@@ -41,7 +41,7 @@ def main(argv: list[str] | None = None) -> int:
         resposta = resposta_erro(None, "JSON_INVALIDO", f"JSON inválido: {e}")
         codigo = SAIDA_ENTRADA_INVALIDA
     except ErroValidacao as e:
-        resposta = resposta_erro(operacao, e.codigo, e.mensagem, getattr(e, "erros", None))
+        resposta = resposta_erro(operacao, e.codigo, e.mensagem, getattr(e, "erros", None), getattr(e, "campo", None))
         codigo = SAIDA_ENTRADA_INVALIDA
     except Exception as e:  # noqa: BLE001 – a resposta JSON precisa sair mesmo em falha interna
         traceback.print_exc(file=sys.stderr)
