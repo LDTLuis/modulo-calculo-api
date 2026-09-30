@@ -214,6 +214,7 @@ A Central já pode planejar as telas para estes campos. O motor 1.0 **ignora** c
 | Campo | Regra |
 |---|---|
 | `opcoes.agora` | ISO 8601 **com fuso**. Relógio de referência para "timestamp no futuro". Se ausente, usa o relógio da máquina. Útil para reprocessar lotes antigos e em testes |
+| `opcoes.graficos` | `{"diretorio": "...", "formato": "png" \| "svg"}` (M10). Gera uma **série temporal por sensor** do lote (histórico incluído), com as linhas de limite de alerta e as leituras fora da faixa plausível destacadas. Os caminhos voltam em `graficos: [{"tipo": "serie_temporal", "sensor", "arquivo"}]`, prontos para o Desktop embutir no PDF (OpenPDF). Também vale em `calcular` para os cálculos com gráfico (hoje, `hidrologia.curva_cota_volume` → `curva_cota_area_volume`) |
 | `historico` | Lista opcional, no mesmo formato de `medicoes`, com leituras **já processadas** antes deste lote. Serve só de contexto para taxa de variação, janela estatística, sensor travado e lacuna na transição. **Não gera alertas.** Leituras com o mesmo sensor e timestamp de uma leitura do lote são descartadas |
 
 **Quanto histórico enviar:** por sensor, no mínimo `anomalia.janela_leituras` leituras (padrão 24) ou `sensor_travado.leituras_consecutivas` (padrão 12), o que for maior. Sem histórico, o motor funciona, mas a primeira leitura de cada sensor no lote não tem taxa de variação nem referência estatística.
