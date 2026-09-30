@@ -37,6 +37,7 @@ int codigo = p.waitFor();
 
 Especificação completa, incluindo a seção `configuracao` publicada pela Central Web: [docs/contrato.md](docs/contrato.md).
 JSON Schema gerado a partir do código: [docs/schemas/](docs/schemas/) (`python -m damiq_calc.adapters.esquemas` regenera).
+Guia da configuração para a Central (gerado do schema): [docs/central/guia-configuracao.pdf](docs/central/guia-configuracao.pdf) (`python scripts/gerar_guia_central.py` regenera o `.md`).
 
 - `info` — versão do motor e operações disponíveis (handshake).
 - `validar_configuracao` — valida a configuração da Central antes de o Desktop gravá-la.

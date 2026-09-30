@@ -19,7 +19,8 @@
     "fuso_padrao": {
       "type": "string",
       "pattern": "^[+-]\\d{2}:\\d{2}$",
-      "default": "-03:00"
+      "default": "-03:00",
+      "description": "Offset aplicado a timestamps de medição sem fuso (ex.: \"-03:00\"). Nomes de fuso não são aceitos."
     },
     "medicoes": {
       "type": "object",
@@ -27,15 +28,18 @@
         "tolerancia_futuro_s": {
           "type": "number",
           "minimum": 0,
-          "default": 300
+          "default": 300,
+          "description": "Folga, em segundos, para aceitar leituras com horário à frente do relógio (coletores dessincronizados)."
         },
         "fator_tolerancia_lacuna": {
           "type": "number",
           "minimum": 1,
-          "default": 1.5
+          "default": 1.5,
+          "description": "Há lacuna quando o intervalo entre leituras de um sensor passa de frequência esperada × fator."
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Parâmetros gerais de validação das medições (M1)."
     },
     "padroes_por_tipo": {
       "type": "object",
@@ -51,21 +55,25 @@
         "type": "object",
         "properties": {
           "faixa": {
-            "$ref": "#/$defs/faixa"
+            "$ref": "#/$defs/faixa",
+            "description": "Faixa plausível padrão do tipo."
           },
           "frequencia_esperada_s": {
             "type": "number",
-            "exclusiveMinimum": 0
+            "exclusiveMinimum": 0,
+            "description": "Intervalo esperado entre leituras, em segundos (detecção de lacunas)."
           }
         },
         "additionalProperties": false
-      }
+      },
+      "description": "Valores padrão por tipo de medição (chave: nivel, pressao, vazao ou deslocamento), usados pelos sensores sem valor próprio."
     },
     "sensores": {
       "type": "object",
       "additionalProperties": {
         "$ref": "#/$defs/sensor"
-      }
+      },
+      "description": "Cadastro por instrumento; a chave é o identificador do sensor, igual ao campo `sensor` das medições."
     },
     "monitoramento": {
       "type": "object",
@@ -75,44 +83,52 @@
           "properties": {
             "ativo": {
               "type": "boolean",
-              "default": true
+              "default": true,
+              "description": "Liga a detecção estatística."
             },
             "janela_leituras": {
               "type": "integer",
               "minimum": 3,
-              "default": 24
+              "default": 24,
+              "description": "Quantidade de leituras anteriores que formam a referência."
             },
             "minimo_leituras": {
               "type": "integer",
               "minimum": 3,
               "default": 8,
-              "description": "≤ janela_leituras"
+              "description": "Leituras anteriores mínimas para avaliar; deve ser ≤ janela_leituras."
             },
             "limiar_z": {
               "type": "number",
               "exclusiveMinimum": 0,
-              "default": 3.5
+              "default": 3.5,
+              "description": "Aciona quando |z| passa deste valor (z = 0,6745·(x − mediana)/MAD)."
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Detecção de leitura que destoa do comportamento recente (z-score modificado sobre mediana/MAD)."
         },
         "sensor_travado": {
           "type": "object",
           "properties": {
             "ativo": {
               "type": "boolean",
-              "default": false
+              "default": false,
+              "description": "Liga a detecção de sensor travado."
             },
             "leituras_consecutivas": {
               "type": "integer",
               "minimum": 2,
-              "default": 12
+              "default": 12,
+              "description": "Quantidade de valores idênticos seguidos para acionar."
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Detecção de valor idêntico repetido. Desligada por padrão: com leitura manual, repetições são comuns."
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Parâmetros gerais das regras de qualidade de dados (M2)."
     },
     "limites_calculo": {
       "type": "object",
@@ -282,13 +298,15 @@
           "type": [
             "number",
             "null"
-          ]
+          ],
+          "description": "Limite inferior (null = aberto)."
         },
         "max": {
           "type": [
             "number",
             "null"
-          ]
+          ],
+          "description": "Limite superior (null = aberto)."
         },
         "unidade": {
           "enum": [
@@ -307,7 +325,8 @@
             "mca",
             "mm",
             "psi"
-          ]
+          ],
+          "description": "Unidade de min/max; compatível com o tipo do sensor. Padrão: unidade canônica do tipo."
         }
       },
       "additionalProperties": false,
@@ -332,19 +351,22 @@
           "type": [
             "number",
             "null"
-          ]
+          ],
+          "description": "Valor que aciona AVISO (null ou ausente = não avaliado)."
         },
         "alerta": {
           "type": [
             "number",
             "null"
-          ]
+          ],
+          "description": "Valor que aciona ALERTA (null ou ausente = não avaliado)."
         },
         "critico": {
           "type": [
             "number",
             "null"
-          ]
+          ],
+          "description": "Valor que aciona CRITICO (null ou ausente = não avaliado)."
         }
       },
       "additionalProperties": false,
@@ -360,14 +382,17 @@
             "pressao",
             "vazao",
             "deslocamento"
-          ]
+          ],
+          "description": "Tipo cadastrado; leituras desse sensor com outro tipo são rejeitadas (TIPO_DIVERGENTE)."
         },
         "faixa": {
-          "$ref": "#/$defs/faixa"
+          "$ref": "#/$defs/faixa",
+          "description": "Faixa plausível do instrumento (ficha técnica). Fora dela, a leitura é mantida com a flag FORA_FAIXA_PLAUSIVEL."
         },
         "frequencia_esperada_s": {
           "type": "number",
-          "exclusiveMinimum": 0
+          "exclusiveMinimum": 0,
+          "description": "Intervalo esperado entre leituras deste sensor, em segundos; prevalece sobre o padrão do tipo."
         },
         "limites_alerta": {
           "type": "object",
@@ -389,13 +414,16 @@
                 "mca",
                 "mm",
                 "psi"
-              ]
+              ],
+              "description": "Unidade dos níveis; padrão: unidade canônica do tipo."
             },
             "acima": {
-              "$ref": "#/$defs/niveis"
+              "$ref": "#/$defs/niveis",
+              "description": "Aciona quando o valor é ≥ nível. Ordem: aviso ≤ alerta ≤ critico."
             },
             "abaixo": {
-              "$ref": "#/$defs/niveis"
+              "$ref": "#/$defs/niveis",
+              "description": "Aciona quando o valor é ≤ nível. Ordem: aviso ≥ alerta ≥ critico."
             }
           },
           "additionalProperties": false,
@@ -410,7 +438,8 @@
                 "abaixo"
               ]
             }
-          ]
+          ],
+          "description": "Limites de engenharia (RF-06), cadastrados pelo engenheiro; geram alertas de SEGURANCA."
         },
         "taxa_variacao": {
           "type": "object",
@@ -432,12 +461,14 @@
                 "mca",
                 "mm",
                 "psi"
-              ]
+              ],
+              "description": "Unidade da variação; padrão: unidade canônica do tipo."
             },
             "intervalo_s": {
               "type": "number",
               "exclusiveMinimum": 0,
-              "default": 86400.0
+              "default": 86400.0,
+              "description": "Intervalo de referência da taxa, em segundos (86400 = por dia)."
             },
             "direcao": {
               "enum": [
@@ -445,23 +476,26 @@
                 "descida",
                 "ambas"
               ],
-              "default": "ambas"
+              "default": "ambas",
+              "description": "Sentido avaliado: subida, descida ou ambas."
             },
             "aviso": {
               "type": "number",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "description": "Variação no intervalo que aciona AVISO."
             },
             "alerta": {
               "type": "number",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "description": "Variação no intervalo que aciona ALERTA."
             },
             "critico": {
               "type": "number",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "description": "Variação no intervalo que aciona CRITICO."
             }
           },
           "additionalProperties": false,
-          "description": "Magnitudes positivas e crescentes; ao menos um nível.",
           "anyOf": [
             {
               "required": [
@@ -478,7 +512,8 @@
                 "critico"
               ]
             }
-          ]
+          ],
+          "description": "Velocidade máxima de variação entre leituras consecutivas (ex.: rebaixamento rápido do NA)."
         },
         "cota_instalacao_m": {
           "type": "number",

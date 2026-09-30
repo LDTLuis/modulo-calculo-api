@@ -81,13 +81,74 @@ def esquema_configuracao() -> dict:
                     "direcao": {"enum": [d.value for d in DirecaoTaxa], "default": DirecaoTaxa.AMBAS.value},
                     **{n: positivo for n in ("aviso", "alerta", "critico")},
                 },
-                description="Magnitudes positivas e crescentes; ao menos um nível.",
                 anyOf=[{"required": [n]} for n in ("aviso", "alerta", "critico")],
             ),
             "cota_instalacao_m": {"type": "number", "description": "Reservado (M3); aceito e ainda não usado."},
         },
         ["tipo"],
     )
+    return _descrever(_esquema_configuracao_bruto(faixa, niveis, sensor, positivo, anomalia, travado), DESCRICOES_CONFIGURACAO)
+
+
+# Descrições dos campos da configuração (caminho → texto). "*" = chave livre (id, tipo);
+# "$defs.x.y" = propriedade y da definição x. Não sobrescreve descrições já definidas.
+DESCRICOES_CONFIGURACAO = {
+    "fuso_padrao": "Offset aplicado a timestamps de medição sem fuso (ex.: \"-03:00\"). Nomes de fuso não são aceitos.",
+    "medicoes": "Parâmetros gerais de validação das medições (M1).",
+    "medicoes.tolerancia_futuro_s": "Folga, em segundos, para aceitar leituras com horário à frente do relógio (coletores dessincronizados).",
+    "medicoes.fator_tolerancia_lacuna": "Há lacuna quando o intervalo entre leituras de um sensor passa de frequência esperada × fator.",
+    "padroes_por_tipo": "Valores padrão por tipo de medição (chave: nivel, pressao, vazao ou deslocamento), usados pelos sensores sem valor próprio.",
+    "padroes_por_tipo.*.faixa": "Faixa plausível padrão do tipo.",
+    "padroes_por_tipo.*.frequencia_esperada_s": "Intervalo esperado entre leituras, em segundos (detecção de lacunas).",
+    "sensores": "Cadastro por instrumento; a chave é o identificador do sensor, igual ao campo `sensor` das medições.",
+    "monitoramento": "Parâmetros gerais das regras de qualidade de dados (M2).",
+    "monitoramento.anomalia": "Detecção de leitura que destoa do comportamento recente (z-score modificado sobre mediana/MAD).",
+    "monitoramento.anomalia.ativo": "Liga a detecção estatística.",
+    "monitoramento.anomalia.janela_leituras": "Quantidade de leituras anteriores que formam a referência.",
+    "monitoramento.anomalia.minimo_leituras": "Leituras anteriores mínimas para avaliar; deve ser ≤ janela_leituras.",
+    "monitoramento.anomalia.limiar_z": "Aciona quando |z| passa deste valor (z = 0,6745·(x − mediana)/MAD).",
+    "monitoramento.sensor_travado": "Detecção de valor idêntico repetido. Desligada por padrão: com leitura manual, repetições são comuns.",
+    "monitoramento.sensor_travado.ativo": "Liga a detecção de sensor travado.",
+    "monitoramento.sensor_travado.leituras_consecutivas": "Quantidade de valores idênticos seguidos para acionar.",
+    "$defs.faixa.min": "Limite inferior (null = aberto).",
+    "$defs.faixa.max": "Limite superior (null = aberto).",
+    "$defs.faixa.unidade": "Unidade de min/max; compatível com o tipo do sensor. Padrão: unidade canônica do tipo.",
+    "$defs.niveis.aviso": "Valor que aciona AVISO (null ou ausente = não avaliado).",
+    "$defs.niveis.alerta": "Valor que aciona ALERTA (null ou ausente = não avaliado).",
+    "$defs.niveis.critico": "Valor que aciona CRITICO (null ou ausente = não avaliado).",
+    "$defs.sensor.tipo": "Tipo cadastrado; leituras desse sensor com outro tipo são rejeitadas (TIPO_DIVERGENTE).",
+    "$defs.sensor.faixa": "Faixa plausível do instrumento (ficha técnica). Fora dela, a leitura é mantida com a flag FORA_FAIXA_PLAUSIVEL.",
+    "$defs.sensor.frequencia_esperada_s": "Intervalo esperado entre leituras deste sensor, em segundos; prevalece sobre o padrão do tipo.",
+    "$defs.sensor.limites_alerta": "Limites de engenharia (RF-06), cadastrados pelo engenheiro; geram alertas de SEGURANCA.",
+    "$defs.sensor.limites_alerta.unidade": "Unidade dos níveis; padrão: unidade canônica do tipo.",
+    "$defs.sensor.limites_alerta.acima": "Aciona quando o valor é ≥ nível. Ordem: aviso ≤ alerta ≤ critico.",
+    "$defs.sensor.limites_alerta.abaixo": "Aciona quando o valor é ≤ nível. Ordem: aviso ≥ alerta ≥ critico.",
+    "$defs.sensor.taxa_variacao": "Velocidade máxima de variação entre leituras consecutivas (ex.: rebaixamento rápido do NA).",
+    "$defs.sensor.taxa_variacao.unidade": "Unidade da variação; padrão: unidade canônica do tipo.",
+    "$defs.sensor.taxa_variacao.intervalo_s": "Intervalo de referência da taxa, em segundos (86400 = por dia).",
+    "$defs.sensor.taxa_variacao.direcao": "Sentido avaliado: subida, descida ou ambas.",
+    "$defs.sensor.taxa_variacao.aviso": "Variação no intervalo que aciona AVISO.",
+    "$defs.sensor.taxa_variacao.alerta": "Variação no intervalo que aciona ALERTA.",
+    "$defs.sensor.taxa_variacao.critico": "Variação no intervalo que aciona CRITICO.",
+}
+
+
+def _descrever(esquema: dict, descricoes: dict[str, str]) -> dict:
+    # cópia profunda: subesquemas reaproveitados (ex.: `positivo`) não podem compartilhar descrição
+    esquema = json.loads(json.dumps(esquema))
+    for caminho, texto in descricoes.items():
+        partes = caminho.split(".")
+        if partes[0] == "$defs":
+            no, partes = esquema["$defs"][partes[1]], partes[2:]
+        else:
+            no = esquema
+        for parte in partes:
+            no = no["additionalProperties"] if parte == "*" else no["properties"][parte]
+        no.setdefault("description", texto)
+    return esquema
+
+
+def _esquema_configuracao_bruto(faixa, niveis, sensor, positivo, anomalia, travado) -> dict:
     limites = {}
     for definicao in REGISTRO.values():
         for lim in definicao.limites:
@@ -123,7 +184,7 @@ def esquema_configuracao() -> dict:
                         {
                             "ativo": {"type": "boolean", "default": anomalia.ativo},
                             "janela_leituras": {"type": "integer", "minimum": 3, "default": anomalia.janela_leituras},
-                            "minimo_leituras": {"type": "integer", "minimum": 3, "default": anomalia.minimo_leituras, "description": "≤ janela_leituras"},
+                            "minimo_leituras": {"type": "integer", "minimum": 3, "default": anomalia.minimo_leituras},
                             "limiar_z": {**positivo, "default": anomalia.limiar_z},
                         }
                     ),
