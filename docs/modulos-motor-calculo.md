@@ -1,6 +1,6 @@
-# Motor de Cálculo DAMIQ — Módulos Revisados
+# Motor de Cálculo DAMIQ — Módulos
 
-Versão 0.1 · 30/09/2026 · substitui a "Tabela de Cálculos Essenciais Barragens" inicial.
+Versão 1.0 · 30/09/2026 · módulos M0–M11 implementados (repositório `LDTLuis/modulo-calculo-api`, branch `main`). Substitui a "Tabela de Cálculos Essenciais Barragens" inicial.
 
 **Fontes:**
 - **[AP]** Apostila BCST (Prof. Elias Toledo, UNIGOIÁS 2022-1)
@@ -23,12 +23,13 @@ A arquitetura segue a stack oficial: DDD, hexagonal e modularização por área 
 - **Adapter de entrada (CLI JSON).** O Desktop Java chama o motor via `ProcessBuilder`. O motor lê um JSON (stdin ou arquivo), executa e devolve JSON no stdout. O código de saída é `0` em caso de sucesso, `1` para erro de validação e `2` para erro interno.
 - **Todo resultado traz:** valor, unidade, status (`OK`/`AVISO`/`ALERTA`/`CRITICO`), limite usado, premissas e fonte (ex.: `"AP, Nota 11"`). Isso rastreia o cálculo até o laudo e o relatório.
 - **Limites parametrizáveis.** Os valores de referência (FS ≥ 1,5, faixas do ID etc.) são defaults que podem ser sobrescritos por barragem, vindos da configuração da Central Web.
-- **Desempenho (RNF-01).** Um lote de 500 medições deve levar menos de 30 s. As operações ficam vetorizadas com NumPy/Pandas.
+- **Desempenho (RNF-01).** Um lote de 500 medições deve levar menos de 30 s. Nos testes, a validação e o monitoramento de 500 leituras levam menos de 1 s, em Python puro. O Matplotlib (gráficos) só é carregado quando um gráfico é pedido.
 
 ```
 damiq_calc/
-├── adapters/        # cli.py (JSON in/out), schemas (validação do contrato)
-├── core/            # unidades, resultado/status, constantes (γw = 9,81 kN/m³…)
+├── adapters/        # cli.py (JSON in/out), contrato.py (operações), configuracao.py (seção da Central)
+├── core/            # unidades, resultado/status, constantes, calculo.py (entradas, memória de cálculo, registro)
+├── catalogo.py      # índice de todos os cálculos registrados
 ├── medicoes/        # M1 validação e normalização
 ├── monitoramento/   # M2 limites, anomalias, severidade
 ├── hidrostatica/    # M3 pressões, empuxo, subpressão, piezometria
@@ -44,7 +45,37 @@ damiq_calc/
 
 ---
 
-## 2. Módulos
+## 2. Estado da implementação
+
+| Módulo | Pacote | Operação / cálculos (`calcular`) | Testes |
+|---|---|---|---|
+| M0 Núcleo | `core` | Unidades, severidade, memória de cálculo, entradas (incl. tabelas), critérios configuráveis | 25 |
+| M1 Medições | `medicoes` | `processar_lote`: validação, normalização, lacunas | 28 |
+| M2 Monitoramento | `monitoramento` | `processar_lote`: limites, taxa de variação, anomalias, episódios, status | 27 |
+| M3 Hidrostática | `hidrostatica` | `pressao`, `piezometro`, `carga_rede_fluxo`, `empuxo`, `subpressao` | 22 |
+| M4 Percolação | `percolacao` | `darcy`, `vazao_rede_fluxo`, `piping`, `filtro_terzaghi` | 27 |
+| M5 Estabilidade | `estabilidade` | `talude_fellenius`, `talude_bishop`, `gravidade_deslizamento`, `gravidade_resultante` | 25 |
+| M6 Hidrologia | `hidrologia` | `curva_cota_volume`, `volume_secoes`, `vazao_medida`, `metodo_racional`, `periodo_retorno`, `indice_demanda`, `extravasor` | 25 |
+| M7 Geometria | `geometria` | `secao_macico`, `volume_terra`, `borda_livre` | 11 |
+| M8 Classificação | `classificacao` | `enquadramento_pnsb`, `risco` | 29 |
+| M9 Emergência | `emergencia` | `nivel_resposta`, `zas`; nível de resposta também no `processar_lote` | 13 |
+| M10 Gráficos | `graficos` | `opcoes.graficos`: série temporal por sensor e curva cota–área–volume | 11 |
+| M11 Opcionais [LIT] | `opcionais` | `vertedor_retangular`, `vertedor_triangular`, `evapotranspiracao_fao56`, `balanco_hidrico`, `pico_ruptura_froehlich` | 7 |
+| Contrato / CLI | `adapters` | `info`, `listar_calculos`, `calcular`, `processar_lote`, seção `configuracao` | 51 |
+
+**Total: 301 testes**, executados no CI (GitHub Actions) em Ubuntu e Windows com Python 3.13.
+
+**Itens do plano que ficaram para uma etapa futura:**
+- M5: busca automática do círculo crítico. Hoje, as fatias de uma superfície de ruptura são informadas.
+- M8: potencial de risco pelo método de Menescal (P, V, I), cujas tabelas estão como imagem na apostila.
+- M9: importação completa dos estudos de ruptura (hidrogramas, profundidades, população). Hoje, só a tabela distância × tempo, usada na ZAS.
+- M10: gráficos de FS(t) × NA e histograma do índice de demanda.
+
+As seções seguintes descrevem o **escopo de engenharia** de cada módulo. Os nomes exatos dos campos, os limites configuráveis e o formato das respostas estão na **Parte 2 – Contrato JSON**.
+
+---
+
+## 3. Módulos
 
 ### M0 — Núcleo (`core`) · P1
 Módulo de suporte usado por todos os demais.
@@ -184,7 +215,8 @@ Nenhum destes cálculos está no material do professor. Só entram se houver dem
 
 | Cálculo | Fórmula | Observação |
 |---|---|---|
-| Vazão de vertedor | Q = C_d·L·H^(3/2) | Útil para converter leitura de régua em vazão |
+| Vazão de vertedor retangular (Francis) | Q = C·L·H^(3/2) | Útil para converter leitura de régua em vazão |
+| Vazão de vertedor triangular 90° (Thomson) | Q = C·H^(5/2) | Medidores de vazão de drenagem/percolação |
 | Evapotranspiração | Penman-Monteith (FAO-56) | Exige dados meteorológicos |
 | Balanço hídrico | ΔV/Δt = Q_in − Q_out − Q_evap − Q_perdas | Depende de M6 e da evapotranspiração |
 | Pico de ruptura preliminar | Froehlich (1995): Qp = 0,607·V^0,295·h^1,24 | Apenas estimativa; o PAE usa HEC-RAS com parâmetros Eletrobrás/USACE |
@@ -193,49 +225,29 @@ Nenhum destes cálculos está no material do professor. Só entram se houver dem
 
 ---
 
-## 3. Contrato JSON (esboço)
+## 4. Validação
 
-```json
-{
-  "versao_contrato": "1.0",
-  "operacao": "processar_lote",
-  "barragem": { "id": "...", "limites": { "fs_min_talude": 1.5, "fs_min_piping": 1.5 } },
-  "medicoes": [
-    { "sensor": "PZ-01", "tipo": "pressao", "timestamp": "2026-09-30T08:00:00-03:00", "valor": 132.4, "unidade": "kPa" }
-  ]
-}
-```
+Cada fórmula tem testes com pytest que usam, sempre que possível, os **exemplos resolvidos da apostila** como casos de referência:
 
-```json
-{
-  "status": "OK",
-  "resultados": [
-    { "calculo": "percolacao.fs_piping", "valor": 2.16, "unidade": "-", "status": "OK",
-      "limite": 1.5, "premissas": ["gamma_w=10 kN/m3"], "fonte": "AP, Nota 11" }
-  ],
-  "alertas": [],
-  "rejeicoes": [],
-  "graficos": []
-}
-```
+| Caso | Resultado de referência |
+|---|---|
+| Rede de fluxo, Exercício 1 (pontos P, Q e A) | u = 182, 72 e 138 kPa |
+| Subpressão, Exercício 1 | F = 7.112 kN/m |
+| Vazão pela rede de fluxo | 0,2 cm³/s/cm e 5,5·10⁻⁴ m³/s/m |
+| Areia movediça, Exercício 2 | i_crit = 0,8; i = 0,37; FS ≈ 2,2 |
+| Volume por curvas de nível (cotas 99,5–103) | 5.823 m³ |
+| Período de retorno | Tr ≈ 99.500 anos (R = 1 %) e 4.480 anos (R = 20 %) |
+| Volume de terra, 11 trapézios | 1.336,625 m³ |
+| Escorregamento da barragem de gravidade | P = 2E ⇒ FS = 1,5 |
 
----
-
-## 4. Ordem de implementação sugerida
-
-1. **M0 + adapter CLI + M1.** O contrato com o Desktop fica testável cedo, o que mitiga o risco R-02.
-2. **M2 e M3.** Fecham o fluxo medição → severidade → alerta (RF-04 e RF-06).
-3. **M4, M5 (simplificada) e M8.**
-4. **M10.** Relatórios.
-5. **M6, M7 e M9.**
-6. **M11.** Sob demanda.
-
-Cada fórmula recebe testes com pytest usando os exemplos resolvidos da apostila como casos de referência. Exemplo: rede de fluxo com i_crit = 0,8, i = 0,37 e FS ≈ 2,2; Tr = 99.500 anos para R = 1 % e n = 1.000.
+Os métodos sem exercício resolvido na apostila (Fellenius, Bishop) são verificados contra **soluções analíticas exatas**. A evapotranspiração é conferida com o **Exemplo 18 da FAO-56**.
 
 ## 5. Decisões a validar com o professor/equipe
 
-- Mapeamento Aviso/Alerta/Crítico ↔ Níveis 0–3 ↔ verde/amarelo/vermelho.
-- FS mínimo de piping (1,5?) e de talude por condição de carregamento (final de construção, regime permanente, rebaixamento rápido).
-- Transcrição das tabelas de pontuação CRI/DPA/Menescal.
-- Unidade de área no Método Racional.
-- Métodos estatísticos de anomalia e janelas padrão por tipo de sensor.
+- **Níveis de alerta:** mapeamento Aviso/Alerta/Crítico ↔ Níveis 1–3 ↔ verde/amarelo/vermelho.
+- **FS mínimo de piping:** o padrão é 1,5, configurável. A apostila chama FS = 2,2 de "relativamente baixo".
+- **Taludes:** FS de talude por condição de carregamento (final de construção, regime permanente, rebaixamento rápido).
+- **Classificação:** tabelas de pontuação CT/EC/PS/DPA e faixas de corte do CRI (60/35) e do DPA (16/10).
+- **Entradas em `mca`:** a conversão usa γw = 9,81, mesmo quando o cálculo usa outro γw.
+- **Subpressão:** coeficiente de redução por drenagem (não consta na apostila).
+- **Monitoramento:** métodos estatísticos de anomalia, janelas padrão por tipo de sensor e histerese nos limites.
