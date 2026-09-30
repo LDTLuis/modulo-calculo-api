@@ -218,3 +218,23 @@ def test_validar_configuracao_exige_a_secao(tmp_path):
 def test_erro_sem_campo_tem_campo_nulo(tmp_path):
     _, resp = executar(tmp_path, {"versao_contrato": "1.0", "operacao": "voar"})
     assert resp["erros"][0]["campo"] is None
+
+
+def test_versao_unica_do_pacote(tmp_path):
+    """A versão vem só de damiq_calc.__version__ (pyproject: dynamic) e aparece no `info`."""
+    import importlib.metadata
+
+    import damiq_calc
+
+    assert importlib.metadata.version("damiq-calc") == damiq_calc.__version__
+    _, resp = executar(tmp_path, {"versao_contrato": "1.0", "operacao": "info"})
+    assert resp["motor"]["versao"] == damiq_calc.__version__
+
+
+def test_changelog_tem_a_versao_atual():
+    from pathlib import Path
+
+    import damiq_calc
+
+    changelog = (Path(__file__).resolve().parents[1] / "CHANGELOG.md").read_text(encoding="utf-8")
+    assert f"## [{damiq_calc.__version__}]" in changelog

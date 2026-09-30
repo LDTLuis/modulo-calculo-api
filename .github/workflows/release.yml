@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Conferir tag × versão do pacote
+        run: |
+          versao=$(python -c "import re,pathlib; print(re.search(r'__version__ = \"(.+)\"', pathlib.Path('src/damiq_calc/__init__.py').read_text()).group(1))")
+          if [ "v$versao" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::A tag $GITHUB_REF_NAME não corresponde à versão do pacote ($versao)"; exit 1
+          fi
+
+      - name: Testes
+        run: |
+          python -m pip install -e ".[dev]"
+          python -m pytest -ra
+
+      - name: Gerar pacote (wheel e sdist)
+        run: |
+          python -m pip install build
+          python -m build
+
+      - name: Publicar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          versao="${GITHUB_REF_NAME#v}"
+          # seção "## [x.y.z] ..." do CHANGELOG até a próxima "## ["
+          awk -v cab="## [$versao]" 'index($0, cab) == 1 {ok=1; next} ok && index($0, "## [") == 1 {exit} ok' CHANGELOG.md > notas.md
+          if [ ! -s notas.md ]; then echo "::error::CHANGELOG.md sem a seção [$versao]"; exit 1; fi
+          gh release create "$GITHUB_REF_NAME" dist/* --title "Motor de cálculo DAMIQ $GITHUB_REF_NAME" --notes-file notas.md

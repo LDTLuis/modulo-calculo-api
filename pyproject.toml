@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "damiq-calc"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Motor de cálculo do DAMIQ – segurança de barragens"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -16,6 +16,9 @@ dev = ["pytest>=8", "jsonschema>=4.23"]
 
 [project.scripts]
 damiq-calc = "damiq_calc.adapters.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "damiq_calc.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]

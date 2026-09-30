@@ -82,5 +82,7 @@ src/damiq_calc/
 
 ## Fluxo de trabalho
 
+- Versão do pacote: `damiq_calc.__version__` (única fonte; ver [CHANGELOG.md](CHANGELOG.md)). Uma tag `vX.Y.Z` na `main` dispara o workflow [release.yml](.github/workflows/release.yml), que confere a versão, roda os testes e publica a release com o wheel.
+
 - Uma branch por módulo ou tarefa (`feature/m5-estabilidade`, `chore/...`), integrada à `main` por pull request.
 - O GitHub Actions ([.github/workflows/testes.yml](.github/workflows/testes.yml)) roda o pytest em Ubuntu e Windows com Python 3.13 em todo PR e em cada push na `main`.
