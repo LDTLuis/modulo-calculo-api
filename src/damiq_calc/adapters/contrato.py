@@ -42,7 +42,11 @@ def resposta_base(operacao: str | None, config: Configuracao | None = None) -> d
 
 
 def resposta_erro(
-    operacao: str | None, codigo: str, mensagem: str, por_campo: list[dict] | None = None
+    operacao: str | None,
+    codigo: str,
+    mensagem: str,
+    por_campo: list[dict] | None = None,
+    campo: str | None = None,
 ) -> dict:
     """Resposta de erro. `por_campo` (entradas de cálculo) vira um erro por campo, para a tela
     marcar cada um; os demais erros têm `campo: null`."""
@@ -53,7 +57,7 @@ def resposta_erro(
             {"codigo": e["codigo"], "mensagem": e["mensagem"], "campo": e["campo"]} for e in por_campo
         ]
     else:
-        resposta["erros"].append({"codigo": codigo, "mensagem": mensagem, "campo": None})
+        resposta["erros"].append({"codigo": codigo, "mensagem": mensagem, "campo": campo})
     return resposta
 
 
@@ -223,8 +227,34 @@ def _opcoes_graficos(opcoes: Mapping) -> tuple[Path, str] | None:
     return Path(diretorio), formato
 
 
+def _op_validar_configuracao(requisicao: Mapping) -> dict:
+    """Valida a configuração publicada pela Central sem processar dados.
+
+    Uso previsto: o Desktop recebe uma nova versão da Central, valida aqui e só então a
+    grava no SQLite; se inválida, mantém a versão anterior e registra o erro.
+    """
+    if "configuracao" not in requisicao:
+        raise ErroContrato("Campo 'configuracao' é obrigatório")
+    config = ler_configuracao(requisicao)
+    tipos_com_padrao = set(config.faixas_por_tipo) | set(config.frequencias_por_tipo)
+    resposta = resposta_base("validar_configuracao", config)
+    resposta["configuracao"] = {
+        "valida": True,
+        "resumo": {
+            "sensores": len(config.sensores),
+            "sensores_com_regras_de_alerta": len(config.monitoramento.sensores),
+            "padroes_por_tipo": sorted(t.value for t in tipos_com_padrao),
+            "limites_calculo": sorted(config.limites_calculo),
+            "anomalia_estatistica": config.monitoramento.anomalia.ativo,
+            "sensor_travado": config.monitoramento.travado.ativo,
+        },
+    }
+    return resposta
+
+
 OPERACOES: dict[str, Callable[[Mapping], dict]] = {
     "info": _op_info,
+    "validar_configuracao": _op_validar_configuracao,
     "processar_lote": _op_processar_lote,
     "listar_calculos": _op_listar_calculos,
     "calcular": _op_calcular,

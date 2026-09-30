@@ -38,6 +38,7 @@ int codigo = p.waitFor();
 Especificação completa, incluindo a seção `configuracao` publicada pela Central Web: [docs/contrato.md](docs/contrato.md).
 
 - `info` — versão do motor e operações disponíveis (handshake).
+- `validar_configuracao` — valida a configuração da Central antes de o Desktop gravá-la.
 - `listar_calculos` / `calcular` — M3+: descoberta dos campos de cada cálculo e execução com memória de cálculo.
 - `processar_lote` — M1: valida, normaliza para a unidade canônica do tipo (nível → m, pressão → kPa, vazão → m3/s, deslocamento → mm) e detecta lacunas; M2: gera alertas (limites, taxa de variação, qualidade) e o status da barragem e dos dados.
 

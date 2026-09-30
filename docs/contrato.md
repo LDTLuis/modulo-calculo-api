@@ -439,3 +439,51 @@ Códigos: `CAMPO_AUSENTE`, `CAMPO_DESCONHECIDO`, `VALOR_INVALIDO`, `FORA_DO_INTE
 - Status da resultante: OK no terço médio (base toda comprimida), ALERTA fora do terço médio (tração em parte da base) e CRITICO fora da base (tombamento). Quando U ≥ P, o resultado é CRITICO (flutuação).
 
 > Nas entradas em `mca`, a conversão usa 1 mca = 9,81 kPa, mesmo que o `gama_w` informado seja outro.
+
+## 7. Validação da configuração: `validar_configuracao`
+
+Valida uma configuração publicada pela Central **sem processar dados**. Fluxo recomendado no Desktop:
+
+1. Baixar a nova versão da Central (REST).
+2. Chamar `validar_configuracao` com essa versão.
+3. **Se válida** (saída 0): gravar no SQLite, passar a usá-la e registrar os `avisos`, se houver.
+4. **Se inválida** (saída 1): **manter a versão anterior**, registrar o erro no log (RF-12) e avisar o administrador. O campo com problema vem em `erros[].campo`.
+
+```json
+{ "versao_contrato": "1.0", "operacao": "validar_configuracao", "configuracao": { "versao": 21, "...": "..." } }
+```
+
+**Resposta (válida):**
+
+```json
+{
+  "status": "OK",
+  "versao_config": 21,
+  "avisos": [],
+  "configuracao": {
+    "valida": true,
+    "resumo": {
+      "sensores": 2,
+      "sensores_com_regras_de_alerta": 1,
+      "padroes_por_tipo": ["vazao"],
+      "limites_calculo": ["fs_min_piping"],
+      "anomalia_estatistica": true,
+      "sensor_travado": false
+    }
+  }
+}
+```
+
+**Resposta (inválida):**
+
+```json
+{
+  "status": "ERRO",
+  "erros": [
+    { "codigo": "CONTRATO_INVALIDO", "campo": "configuracao.sensores.PZ-01.faixa",
+      "mensagem": "'configuracao.sensores.PZ-01.faixa': min (5) maior que max (1)" }
+  ]
+}
+```
+
+Em todas as operações, `erros[].campo` traz o caminho do campo quando o erro se refere a um campo específico, e `null` nos demais casos (JSON inválido, operação desconhecida etc.).
