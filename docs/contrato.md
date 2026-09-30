@@ -187,6 +187,10 @@ São os critérios de aceitação dos cálculos de engenharia, definidos pelo en
 | `fator_filtro_terzaghi` | 5 | `percolacao.filtro_terzaghi` |
 | `fs_min_talude` | 1,5 (NBR 11.682) | `estabilidade.talude_fellenius`, `estabilidade.talude_bishop` |
 | `fs_min_deslizamento` | 1,5 (n da apostila) | `estabilidade.gravidade_deslizamento` |
+| `largura_min_crista` | 2,5 m | `geometria.secao_macico` |
+| `talude_min_montante` / `talude_min_jusante` | 3 / 2 (H:V) | `geometria.secao_macico` |
+| `relacao_min_agua_terra` | 3 | `geometria.volume_terra` |
+| `borda_livre_min` | 1,0 m | `geometria.borda_livre` |
 
 ### 3.8 Campos reservados (próximas versões)
 
@@ -398,6 +402,9 @@ Códigos: `CAMPO_AUSENTE`, `CAMPO_DESCONHECIDO`, `VALOR_INVALIDO`, `FORA_DO_INTE
 | `hidrologia.periodo_retorno` | Tr = 1/[1 − (1 − R)^(1/n)]; R aceita `%` | AP Nota 06 (Tr ≈ 99.500 e 4.480 anos) |
 | `hidrologia.indice_demanda` | Qref = Qesp·AD e ID = Qconsumo/Qref·100, com `rotulo` da classe: Normal (OK), Alerta (AVISO), Moderadamente crítico (ALERTA), Altamente crítico (CRITICO) | AP Nota 01 (outorga) |
 | `hidrologia.extravasor` | Relação capacidade/vazão de projeto e folga; CRITICO se a capacidade for menor que a vazão de projeto | AP Nota 02 |
+| `geometria.secao_macico` | Largura da base B = b + (m₁ + m₂)·h, área da seção e conformidade de crista (≥ 2,5 m) e taludes (3:1 montante, 2:1 jusante); AVISO quando abaixo do recomendado | AP Nota 02 |
+| `geometria.volume_terra` | Volume por trapézios (tabela `trechos`) e, com `volume_agua`, relação água : terra (≥ 3:1) | AP Nota 02 (exemplo: 1.336,625 m³) |
+| `geometria.borda_livre` | BL = cota da crista − NA máximo; ALERTA abaixo do mínimo (1,0 m) e CRITICO se BL ≤ 0 (galgamento) | AP Nota 02 (folga de 1,0 m) |
 
 **Convenções do M5:**
 - As fatias são informadas prontas (largura, peso, α, c', φ', u). A busca automática do círculo crítico fica para uma etapa futura.
