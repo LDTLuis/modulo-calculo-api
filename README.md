@@ -70,3 +70,8 @@ src/damiq_calc/
 └── percolacao/     # M4: Darcy, vazão pela rede de fluxo, piping (FS), filtros de Terzaghi
 # core/calculo.py: entradas, memória de cálculo e registro dos cálculos; catalogo.py: índice
 ```
+
+## Fluxo de trabalho
+
+- Uma branch por módulo ou tarefa (`feature/m5-estabilidade`, `chore/...`), integrada à `main` por pull request.
+- O GitHub Actions ([.github/workflows/testes.yml](.github/workflows/testes.yml)) roda o pytest em Ubuntu e Windows com Python 3.13 em todo PR e em cada push na `main`.
