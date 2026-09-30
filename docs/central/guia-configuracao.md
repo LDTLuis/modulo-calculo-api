@@ -1,6 +1,6 @@
 # Guia da Configuração — Central de Configurações Web
 
-Motor de cálculo DAMIQ **1.0.0** · contrato JSON **1.0** · gerado a partir de `docs/schemas/configuracao.schema.json` (`python scripts/gerar_guia_central.py`).
+Motor de cálculo DAMIQ **1.0.1** · contrato JSON **1.0** · gerado a partir de `docs/schemas/configuracao.schema.json` (`python scripts/gerar_guia_central.py`).
 
 ## 1. Visão geral
 

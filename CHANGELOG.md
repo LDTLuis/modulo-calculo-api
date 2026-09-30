@@ -3,6 +3,26 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); versões seguem [SemVer](https://semver.org/lang/pt-BR/).
 A versão do **contrato JSON** (`versao_contrato`) é independente da versão do pacote: mudanças compatíveis mantêm o contrato 1.x.
 
+## [1.0.1] – 2026-09-30
+
+Versão de documentação: **o motor e o contrato JSON 1.0 não mudaram** (mesmas operações, campos e resultados).
+
+### Adicionado
+- **Guia da configuração para a Central** (`docs/central/guia-configuracao.pdf`), gerado do JSON Schema:
+  - campos com tipo, padrão e regras;
+  - unidades por tipo e critérios de `limites_calculo`;
+  - regras entre campos;
+  - exemplo validado e fluxo de `validar_configuracao`.
+- `scripts/gerar_guia_central.py` e um teste que falha se o guia divergir do schema.
+- A release passa a incluir os PDFs da documentação e os JSON Schemas como arquivos para download.
+
+### Alterado
+- A documentação usa **"instrumento"** no lugar de "sensor" (ponto de medição lido pelo técnico, sem leitura automática). Os nomes dos campos do JSON (`sensor`, `sensores`, `sensor_travado`) continuam os mesmos.
+- `configuracao.schema.json`: todos os campos com `description`.
+
+### Corrigido
+- JSON Schema: subesquemas reaproveitados compartilhavam a mesma descrição (ex.: `sensores.<id>.frequencia_esperada_s` exibia o texto do padrão por tipo).
+
 ## [1.0.0] – 2026-09-30
 
 Primeira versão para integração com o Desktop e a Central de Configurações. Contrato JSON **1.0**.
