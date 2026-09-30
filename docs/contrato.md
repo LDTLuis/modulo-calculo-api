@@ -191,6 +191,9 @@ São os critérios de aceitação dos cálculos de engenharia, definidos pelo en
 | `talude_min_montante` / `talude_min_jusante` | 3 / 2 (H:V) | `geometria.secao_macico` |
 | `relacao_min_agua_terra` | 3 | `geometria.volume_terra` |
 | `borda_livre_min` | 1,0 m | `geometria.borda_livre` |
+| `cri_limite_alto` / `cri_limite_medio` | 60 / 35 | `classificacao.risco` (**conferir com as tabelas da apostila**) |
+| `ec_item_risco_alto` | 10 | `classificacao.risco` |
+| `dpa_limite_alto` / `dpa_limite_medio` | 16 / 10 | `classificacao.risco`, `classificacao.enquadramento_pnsb` (**conferir**) |
 
 ### 3.8 Campos reservados (próximas versões)
 
@@ -405,6 +408,8 @@ Códigos: `CAMPO_AUSENTE`, `CAMPO_DESCONHECIDO`, `VALOR_INVALIDO`, `FORA_DO_INTE
 | `geometria.secao_macico` | Largura da base B = b + (m₁ + m₂)·h, área da seção e conformidade de crista (≥ 2,5 m) e taludes (3:1 montante, 2:1 jusante); AVISO quando abaixo do recomendado | AP Nota 02 |
 | `geometria.volume_terra` | Volume por trapézios (tabela `trechos`) e, com `volume_agua`, relação água : terra (≥ 3:1) | AP Nota 02 (exemplo: 1.336,625 m³) |
 | `geometria.borda_livre` | BL = cota da crista − NA máximo; ALERTA abaixo do mínimo (1,0 m) e CRITICO se BL ≤ 0 (galgamento) | AP Nota 02 (folga de 1,0 m) |
+| `classificacao.enquadramento_pnsb` | Enquadramento na PNSB (altura ≥ 15 m, capacidade ≥ 3 hm³, resíduos perigosos ou DPA médio/alto), com `rotulo` SIM/NÃO, e grupo de cadastramento SEMAD-GO (1, 2 ou 3) | AP Nota 01 (Lei 12.334/2010; IN SEMAD 01/2020) |
+| `classificacao.risco` | CRI = CT + EC + PS e categoria (item de EC = 10 → ALTO automático, CRITICO); categoria do DPA; classe A–D pela matriz da apostila (Alto: A B C · Médio: A C D · Baixo: A D D); periodicidade da RPSB (A 5, B 7, C 10, D 12 anos) | AP Nota 08 (Res. CNRH 143/2012) |
 
 **Convenções do M5:**
 - As fatias são informadas prontas (largura, peso, α, c', φ', u). A busca automática do círculo crítico fica para uma etapa futura.

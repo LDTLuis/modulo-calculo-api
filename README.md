@@ -70,7 +70,8 @@ src/damiq_calc/
 ├── percolacao/     # M4: Darcy, vazão pela rede de fluxo, piping (FS), filtros de Terzaghi
 ├── estabilidade/   # M5: taludes (Fellenius, Bishop) e gravidade (escorregamento, terço médio)
 ├── hidrologia/     # M6: cota–área–volume, vazões, Método Racional, Tr, índice de demanda, extravasor
-└── geometria/      # M7: seção do maciço, crista e taludes, volume de terra, borda livre
+├── geometria/      # M7: seção do maciço, crista e taludes, volume de terra, borda livre
+└── classificacao/  # M8: enquadramento PNSB/SEMAD, CRI, DPA, matriz A–D, periodicidade da RPSB
 # core/calculo.py: entradas, memória de cálculo e registro dos cálculos; catalogo.py: índice
 ```
 
