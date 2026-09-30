@@ -24,6 +24,9 @@ class Dimensao(StrEnum):
     PESO_ESPECIFICO = "peso_especifico"
     ANGULO = "angulo"
     FORCA_LINEAR = "forca_linear"
+    INTENSIDADE = "intensidade"
+    TEMPO = "tempo"
+    VAZAO_ESPECIFICA = "vazao_especifica"
     ADIMENSIONAL = "adimensional"
 
 
@@ -59,6 +62,17 @@ _UNIDADES: dict[str, tuple[Dimensao, float, str]] = {
     # força por metro de barragem (1 tf = 9,80665 kN)
     "kn/m": (_D.FORCA_LINEAR, 1.0, "kN/m"),
     "tf/m": (_D.FORCA_LINEAR, 9.80665, "tf/m"),
+    "s": (_D.TEMPO, 1.0, "s"),
+    "min": (_D.TEMPO, 60.0, "min"),
+    "h": (_D.TEMPO, 3600.0, "h"),
+    "dia": (_D.TEMPO, 86400.0, "dia"),
+    # intensidade de chuva
+    "mm/h": (_D.INTENSIDADE, 1.0, "mm/h"),
+    "mm/min": (_D.INTENSIDADE, 60.0, "mm/min"),
+    "mm/dia": (_D.INTENSIDADE, 1 / 24, "mm/dia"),
+    # vazão específica (por área de drenagem)
+    "m3/s/km2": (_D.VAZAO_ESPECIFICA, 1.0, "m3/s/km2"),
+    "l/s/km2": (_D.VAZAO_ESPECIFICA, 1e-3, "L/s/km2"),
     "grau": (_D.ANGULO, 1.0, "grau"),
     "rad": (_D.ANGULO, 180 / math.pi, "rad"),
     "-": (_D.ADIMENSIONAL, 1.0, "-"),

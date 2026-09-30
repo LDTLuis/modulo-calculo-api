@@ -24,4 +24,5 @@ def test_resultado_para_dict():
         "limite": 1.5,
         "premissas": ["gamma_w=10 kN/m3"],
         "fonte": "AP, Nota 11",
+        "rotulo": None,
     }

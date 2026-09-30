@@ -34,6 +34,7 @@ class Resultado:
     premissas: tuple[str, ...] = ()
     fonte: str | None = None
     descricao: str | None = None
+    rotulo: str | None = None  # texto do resultado categórico (ex.: classe "B", "Moderadamente crítico")
 
     def para_dict(self) -> dict:
         return {
@@ -45,4 +46,5 @@ class Resultado:
             "limite": self.limite,
             "premissas": list(self.premissas),
             "fonte": self.fonte,
+            "rotulo": self.rotulo,
         }
