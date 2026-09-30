@@ -118,7 +118,42 @@ int codigo = p.waitFor();   // aplicar timeout (ex.: 60 s) e destruir o processo
 - **Gráficos para relatórios:** `opcoes.graficos = {"diretorio", "formato"}` gera PNG/SVG, e os caminhos voltam em `graficos[]`, prontos para o OpenPDF.
 - **Terminologia:** o conceito é *instrumento* (ponto de medição lido pelo técnico), mas no JSON os campos se chamam `sensor`, `sensores` e `sensor_travado`.
 
-## 6. Referências
+## 6. Referências do professor para o back
+
+Material de **consulta**, não requisito. O conhecimento de engenharia desses documentos (fórmulas, critérios, classificação, níveis do PAE) **já está implementado no motor**: o back **não** deve reimplementar cálculos, apenas chamar o motor. Estas partes ajudam em funcionalidades do próprio back.
+
+**Arquivos** (caminhos relativos à pasta `Projeto-DAMIQ`):
+
+| Documento | Caminho | Tamanho |
+|---|---|---|
+| Apostila BCST, *Barragens, Contenção e Segurança de Taludes* (Prof. Elias Toledo, UNIGOIÁS 2022-1) | `1. Documentos/Documentos Professor/APOSTILA-BARRAGEM-BCST.pdf` | 29 MB, ≈ 640 slides |
+| PAE, Plano de Ação de Emergência da Barragem do Ribeirão João Leite, Vol. 06 (SANEAGO, 2019) | `1. Documentos/Documentos Professor/PAE.pdf` | 99 MB, ≈ 140 páginas + anexos |
+
+**O que consultar em cada um:**
+
+| Funcionalidade do back | Onde consultar | O que aproveitar |
+|---|---|---|
+| **RF-06: notificação de alertas** | PAE §5, *Classificação das situações de emergência* (p. 32) · §6, *Procedimentos de notificação e sistema de alerta* (p. 35–40) · §7, *Responsabilidades* (p. 41–62) | Quem é notificado em cada nível (verde/amarelo/vermelho), em que ordem e por qual meio; papéis de empreendedor, coordenador do PAE, equipe técnica e Defesa Civil |
+| **RF-06 e RF-08: registro formal da emergência** | PAE §11, *Formulários de declaração de início e de encerramento da emergência e de mensagem de notificação* (p. 115) | Campos dos formulários, para modelar o registro de emergência e incidente e seus estados |
+| **RF-02: cadastro de contatos** | PAE §2, *Identificação e contatos do empreendedor, do coordenador do PAE e das entidades* (p. 7) · §12, *Entidades que recebem cópia do PAE* (p. 120) | Estrutura dos contatos por barragem |
+| **RF-02: cadastro da barragem** | PAE §3, *Descrição geral da barragem* (p. 9–28) · Apostila Nota 01, slides do *Cadastramento de Barragens – Portaria 146/2019 SEMAD* | Metadados a cadastrar: localização, características, estruturas associadas, dados hidrológicos; exigências do cadastro estadual |
+| **Dados da ZAS e população** | PAE §8.3, *Vale a jusante e pontos vulneráveis* (p. 75) · Anexo 6, *Cadastramento de estabelecimentos* (p. 134) | O que guardar sobre a Zona de Autossalvamento para o PAE e os relatórios |
+| **RF-07: relatórios em PDF** | Apostila Nota 12, *Laudo de estabilidade e segurança de barragem* (slides 567–582) | Estrutura e conteúdo esperados de um laudo (recomendações, ART, validade conforme a classe de risco) |
+| **RF-08: inspeções e incidentes** | Apostila Nota 01, slides *Inspeção – Análise* (≈ 25–40) | Roteiro de inspeção (responsável, características, geometria, material, patologias, manutenção) para modelar a ficha |
+| **Prazos de revisão (agenda)** | Apostila Notas 01 e 07, Lei 12.334 art. 18 e matriz de classificação (slides ≈ 350–376) | Periodicidade da Revisão Periódica de Segurança por classe (A 5 · B 7 · C 10 · D 12 anos). O motor já devolve esse valor em `classificacao.risco` |
+
+**Como ler os PDFs nesta máquina:** a ferramenta de leitura de PDF por imagem não funciona aqui, porque falta o `pdftoppm`. Converta para texto com o `pdftotext`, que vem com o Git Bash, e pesquise no texto:
+
+```bash
+pdftotext -layout "1. Documentos/Documentos Professor/PAE.pdf" pae.txt
+iconv -f latin1 -t utf-8 pae.txt > pae.u.txt   # a saída vem em Latin-1
+```
+
+Quadros e fluxogramas que são imagem, como o fluxograma de notificação e as tabelas de pontuação CRI/DPA da apostila, **não** aparecem no texto. Consulte o PDF visualmente.
+
+> A apostila é protegida por direito autoral (uso restrito aos alunos da UNIGOIÁS). Não copie trechos para o repositório público: use-a só como referência.
+
+## 7. Referências
 
 | Material | Onde |
 |---|---|
@@ -126,5 +161,6 @@ int codigo = p.waitFor();   // aplicar timeout (ex.: 60 s) e destruir o processo
 | JSON Schemas | `docs/schemas/*.schema.json` e anexos da release |
 | Guia da configuração (Central) | `docs/central/guia-configuracao.pdf` |
 | Módulos do motor e validação | `docs/modulos-motor-calculo.md` |
-| Requisitos | `Documento_de_Requisitos_DAMIQ_V1` (RF-01 a RF-13, RNF-01 a RNF-07) |
-| Stack oficial | `Stack DAMIQ.xlsx` |
+| Requisitos | `Projeto-DAMIQ/1. Documentos/Documento_de_Requisitos_DAMIQ_V1.pdf` (RF-01 a RF-13, RNF-01 a RNF-07) |
+| Stack oficial | `Projeto-DAMIQ/1. Documentos/Stack DAMIQ.xlsx` |
+| Documentos do professor | `Projeto-DAMIQ/1. Documentos/Documentos Professor/` (seção 6) |
