@@ -6,6 +6,7 @@ Cada unidade pertence a uma dimensão e tem um fator para a unidade base da dime
 
 from __future__ import annotations
 
+import math
 import unicodedata
 from enum import StrEnum
 
@@ -21,6 +22,8 @@ class Dimensao(StrEnum):
     VOLUME = "volume"
     VELOCIDADE = "velocidade"
     PESO_ESPECIFICO = "peso_especifico"
+    ANGULO = "angulo"
+    FORCA_LINEAR = "forca_linear"
     ADIMENSIONAL = "adimensional"
 
 
@@ -53,6 +56,11 @@ _UNIDADES: dict[str, tuple[Dimensao, float, str]] = {
     "m/s": (_D.VELOCIDADE, 1.0, "m/s"),
     "cm/s": (_D.VELOCIDADE, 1e-2, "cm/s"),
     "kn/m3": (_D.PESO_ESPECIFICO, 1.0, "kN/m3"),
+    # força por metro de barragem (1 tf = 9,80665 kN)
+    "kn/m": (_D.FORCA_LINEAR, 1.0, "kN/m"),
+    "tf/m": (_D.FORCA_LINEAR, 9.80665, "tf/m"),
+    "grau": (_D.ANGULO, 1.0, "grau"),
+    "rad": (_D.ANGULO, 180 / math.pi, "rad"),
     "-": (_D.ADIMENSIONAL, 1.0, "-"),
     "%": (_D.ADIMENSIONAL, 1e-2, "%"),
 }
@@ -63,6 +71,9 @@ _ALIASES = {
     "m.c.a": "mca",
     "lps": "l/s",
     "m3/seg": "m3/s",
+    "°": "grau",
+    "graus": "grau",
+    "deg": "grau",
 }
 
 

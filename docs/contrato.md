@@ -185,6 +185,8 @@ São os critérios de aceitação dos cálculos de engenharia, definidos pelo en
 |---|---|---|
 | `fs_min_piping` | 1,5 | `percolacao.piping` |
 | `fator_filtro_terzaghi` | 5 | `percolacao.filtro_terzaghi` |
+| `fs_min_talude` | 1,5 (NBR 11.682) | `estabilidade.talude_fellenius`, `estabilidade.talude_bishop` |
+| `fs_min_deslizamento` | 1,5 (n da apostila) | `estabilidade.gravidade_deslizamento` |
 
 ### 3.8 Campos reservados (próximas versões)
 
@@ -318,6 +320,7 @@ O Desktop pode montar as telas a partir disso, com rótulo = `descricao` e uma l
 ```
 
 - Cada entrada é um número (na unidade padrão do campo) ou `{"valor", "unidade"}`.
+- Entradas do **tipo tabela** (`"tipo": "tabela"` na descoberta, ex.: `fatias`) recebem uma lista de linhas. Cada linha é um objeto com as colunas descritas em `colunas`, e cada célula segue a mesma regra (número ou `{"valor", "unidade"}`). Os erros apontam a célula: `"campo": "fatias[2].alfa"`.
 - Campos opcionais podem ser omitidos. Quando um padrão é usado, o motor registra essa escolha em `memoria.premissas`.
 - Campos que não pertencem ao cálculo são **recusados** (`CAMPO_DESCONHECIDO`), para pegar erros de digitação na integração.
 
@@ -347,6 +350,7 @@ O Desktop pode montar as telas a partir disso, com rótulo = `descricao` e uma l
 - `memoria.passos` é a memória de cálculo pronta para o relatório e o laudo, com texto em pt-BR e vírgula decimal.
 - `memoria.premissas` lista os padrões usados e os critérios aplicados, com a origem (ex.: `"fs_min_piping = 1,5 (padrão do motor)"`).
 - `memoria.conclusoes` traz o parecer em texto nos cálculos com critério (ex.: `"FS = 2,18 ≥ 1,5: atende ao critério contra areia movediça."`).
+- `memoria.tabelas` traz tabelas de apoio ao relatório, como o cálculo fatia a fatia: `{"titulo", "colunas": [{"nome", "unidade"}], "linhas": [[...]]}`.
 
 **Status nos cálculos com critério de segurança:** cada resultado traz `status` e `limite`, e `status_calculo` é o pior deles. Para fatores de segurança:
 
@@ -382,5 +386,15 @@ Códigos: `CAMPO_AUSENTE`, `CAMPO_DESCONHECIDO`, `VALOR_INVALIDO`, `FORA_DO_INTE
 | `percolacao.vazao_rede_fluxo` | Q = k·h·N_F/N_D por metro, e total com comprimento | AP Nota 11, slides 513 e 536 |
 | `percolacao.piping` | Δh, gradiente de saída, gradiente crítico (γsat − γw)/γw e **FS contra areia movediça** (critério `fs_min_piping`) | AP Nota 11, Ex. 2 |
 | `percolacao.filtro_terzaghi` | Razões D15f/D15s (> fator) e D15f/D85s (< fator), com parecer por critério | AP Nota 11 (filtros de proteção) |
+| `estabilidade.talude_fellenius` | FS = Σ[c'·l + (W·cos α − u·l)·tan φ'] / Σ W·sen α, a partir da tabela `fatias`, com tabela por fatia (critério `fs_min_talude`) | AP Nota 09 (NBR 11.682) |
+| `estabilidade.talude_bishop` | FS de Bishop simplificado, iterativo (m_α = cos α + sen α·tan φ'/FS), com tabela por fatia (critério `fs_min_talude`) | AP Nota 09 (NBR 11.682) |
+| `estabilidade.gravidade_deslizamento` | FS = f·(P − U)/E e peso mínimo P_mín = E·n/f + U (critério `fs_min_deslizamento`; f padrão 0,75) | AP Nota 10 (P·f ≥ E·n) |
+| `estabilidade.gravidade_resultante` | Resultante vertical, posição x_R, excentricidade e tensões nos pés de montante e jusante; status pelo terço médio | AP Nota 10 (categorias da resultante) |
+
+**Convenções do M5:**
+- As fatias são informadas prontas (largura, peso, α, c', φ', u). A busca automática do círculo crítico fica para uma etapa futura.
+- α é positivo quando a base da fatia sobe no sentido do movimento.
+- Na gravidade, as forças são por metro de barragem, as distâncias horizontais são medidas a partir do pé de montante e as alturas a partir da base. O empuxo e a subpressão podem vir direto dos resultados de `hidrostatica.empuxo` e `hidrostatica.subpressao`.
+- Status da resultante: OK no terço médio (base toda comprimida), ALERTA fora do terço médio (tração em parte da base) e CRITICO fora da base (tombamento). Quando U ≥ P, o resultado é CRITICO (flutuação).
 
 > Nas entradas em `mca`, a conversão usa 1 mca = 9,81 kPa, mesmo que o `gama_w` informado seja outro.

@@ -67,7 +67,8 @@ src/damiq_calc/
 ├── medicoes/   # M1: modelo, validação, lacunas
 ├── monitoramento/  # M2: regras (limites, taxa, z-score, travado), avaliação por episódios
 ├── hidrostatica/   # M3: pressão, piezômetro, cargas na rede de fluxo, empuxo, subpressão
-└── percolacao/     # M4: Darcy, vazão pela rede de fluxo, piping (FS), filtros de Terzaghi
+├── percolacao/     # M4: Darcy, vazão pela rede de fluxo, piping (FS), filtros de Terzaghi
+└── estabilidade/   # M5: taludes (Fellenius, Bishop) e gravidade (escorregamento, terço médio)
 # core/calculo.py: entradas, memória de cálculo e registro dos cálculos; catalogo.py: índice
 ```
 

@@ -189,6 +189,7 @@ def _op_calcular(requisicao: Mapping) -> dict:
         "passos": [p.para_dict() for p in execucao.memoria.passos],
         "premissas": list(execucao.memoria.premissas),
         "conclusoes": list(execucao.memoria.conclusoes),
+        "tabelas": execucao.memoria.tabelas,
     }
     resposta["status_calculo"] = severidade_maxima(r.severidade for r in execucao.resultados).name
     return resposta
