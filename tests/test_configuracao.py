@@ -229,3 +229,58 @@ def test_processar_lote_gera_alertas_de_ponta_a_ponta():
         ("RN-01", "TAXA_VARIACAO", "ALERTA", 1),
     ]
     assert resp["alertas"][0]["valor_extremo"] == pytest.approx(240.0)
+
+
+# --- avisos de campos desconhecidos ---------------------------------------------------------
+
+
+def test_configuracao_valida_nao_gera_avisos():
+    assert ler_configuracao({"configuracao": CONFIG_CENTRAL}).avisos == ()
+    assert ler_configuracao({"configuracao": CONFIG_M2}).avisos == ()
+
+
+def test_campos_desconhecidos_geram_avisos():
+    config = ler_configuracao(
+        {
+            "configuracao": {
+                "versao": 1,
+                "fuso": "-03:00",  # deveria ser fuso_padrao
+                "sensores": {
+                    "PZ-01": {
+                        "tipo": "pressao",
+                        "limite_alerta": {"acima": {"aviso": 1}},  # deveria ser limites_alerta
+                        "faixa": {"min": 0, "maximo": 10},  # deveria ser max
+                        "cota_instalacao_m": 712.5,  # reservado: sem aviso
+                    }
+                },
+                "monitoramento": {"anomalia": {"limiar": 3}},
+                "limites_calculo": {"fs_min_pipping": 2.0, "fs_min_talude": 1.5},
+                "classificacao": {"qualquer": "coisa"},  # reservado: sem aviso
+            }
+        }
+    )
+    assert sorted(a["campo"] for a in config.avisos) == [
+        "configuracao.fuso",
+        "configuracao.limites_calculo.fs_min_pipping",
+        "configuracao.monitoramento.anomalia.limiar",
+        "configuracao.sensores.PZ-01.faixa.maximo",
+        "configuracao.sensores.PZ-01.limite_alerta",
+    ]
+    assert all(a["codigo"] == "CAMPO_DESCONHECIDO" for a in config.avisos)
+    # o que foi reconhecido continua valendo
+    assert config.limites_calculo["fs_min_talude"] == 1.5
+    assert config.sensores["PZ-01"].faixa == (0.0, None)
+
+
+def test_avisos_voltam_na_resposta():
+    resp = processar(
+        {
+            "versao_contrato": "1.0",
+            "operacao": "calcular",
+            "calculo": "hidrostatica.pressao",
+            "configuracao": {"versao": 2, "limites_calculo": {"fs_min_pipping": 2}},
+            "entradas": {"profundidade": 1},
+        }
+    )
+    assert resp["status"] == "OK"
+    assert [a["campo"] for a in resp["avisos"]] == ["configuracao.limites_calculo.fs_min_pipping"]
