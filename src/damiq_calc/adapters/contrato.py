@@ -8,10 +8,13 @@ Resposta:   {"versao_contrato", "operacao", "status", "versao_config", "resultad
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
+from pathlib import Path
 
 from damiq_calc import __version__, catalogo
 from damiq_calc.core.resultado import severidade_maxima
 from damiq_calc.emergencia import nivel_de_resposta
+from damiq_calc.graficos import FORMATOS
+from damiq_calc.graficos.relatorio import graficos_do_calculo, graficos_do_lote
 from damiq_calc.medicoes import Lacuna, Medicao, detectar_lacunas, validar_lote
 from damiq_calc.monitoramento import avaliar
 
@@ -139,6 +142,11 @@ def _op_processar_lote(requisicao: Mapping) -> dict:
     resposta["rejeicoes"] = [r.para_dict() for r in validacao.rejeicoes]
     resposta["rejeicoes_historico"] = [r.para_dict() for r in historico.rejeicoes]
     resposta["lacunas"] = [lac.para_dict() for lac in lacunas]
+    graficos = _opcoes_graficos(opcoes)
+    if graficos:
+        resposta["graficos"] = graficos_do_lote(
+            validacao.medicoes, historico.medicoes, monitoramento, config.monitoramento, *graficos
+        )
     return resposta
 
 
@@ -194,7 +202,24 @@ def _op_calcular(requisicao: Mapping) -> dict:
         "tabelas": execucao.memoria.tabelas,
     }
     resposta["status_calculo"] = severidade_maxima(r.severidade for r in execucao.resultados).name
+    graficos = _opcoes_graficos(objeto(requisicao.get("opcoes", {}), "opcoes"))
+    if graficos:
+        resposta["graficos"] = graficos_do_calculo(execucao, *graficos)
     return resposta
+
+
+def _opcoes_graficos(opcoes: Mapping) -> tuple[Path, str] | None:
+    """`opcoes.graficos = {"diretorio": "...", "formato": "png" | "svg"}` (M10)."""
+    if "graficos" not in opcoes:
+        return None
+    graficos = objeto(opcoes["graficos"], "opcoes.graficos")
+    diretorio = graficos.get("diretorio")
+    if not isinstance(diretorio, str) or not diretorio.strip():
+        raise ErroContrato("'opcoes.graficos.diretorio' é obrigatório (pasta onde salvar as imagens)")
+    formato = graficos.get("formato", "png")
+    if formato not in FORMATOS:
+        raise ErroContrato(f"'opcoes.graficos.formato' deve ser um de: {', '.join(FORMATOS)}")
+    return Path(diretorio), formato
 
 
 OPERACOES: dict[str, Callable[[Mapping], dict]] = {

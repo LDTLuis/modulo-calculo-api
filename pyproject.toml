@@ -8,8 +8,8 @@ version = "0.1.0"
 description = "Motor de cálculo do DAMIQ – segurança de barragens"
 readme = "README.md"
 requires-python = ">=3.13"
-# NumPy, SciPy, Pandas e Matplotlib (stack oficial) entram quando os módulos M2+ precisarem.
-dependencies = []
+# Matplotlib (M10, gráficos dos relatórios) traz o NumPy; SciPy/Pandas entram quando algum módulo precisar.
+dependencies = ["matplotlib>=3.9"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
