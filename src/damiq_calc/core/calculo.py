@@ -42,9 +42,7 @@ class Entrada:
             "tipo": "numero",
             "descricao": self.descricao,
             "unidade": self.unidade,
-            "unidades_aceitas": unidades.unidades_da_dimensao(unidades.dimensao(self.unidade))
-            if self.unidade != "-"
-            else ["-"],
+            "unidades_aceitas": ["-"] if self.inteiro else unidades.unidades_da_dimensao(unidades.dimensao(self.unidade)),
             "obrigatoria": self.obrigatoria,
             "padrao": self.padrao,
             "minimo": self.minimo,
@@ -205,6 +203,7 @@ def resultado(
     fonte: str,
     severidade: Severidade = Severidade.OK,
     limite: float | None = None,
+    rotulo: str | None = None,
 ) -> Resultado:
     """Monta um `Resultado` com as premissas registradas até aqui na memória."""
     return Resultado(
@@ -216,6 +215,7 @@ def resultado(
         limite=limite,
         premissas=tuple(mem.premissas),
         fonte=fonte,
+        rotulo=rotulo,
     )
 
 
@@ -403,7 +403,8 @@ def _ler_entrada(entrada: Entrada, bruto: object, campo: str | None = None) -> f
 
 def _converter(entrada: Entrada, valor: float, unidade: object, campo: str) -> float:
     try:
-        if entrada.unidade == "-" or unidades.dimensao(unidade) is not unidades.dimensao(entrada.unidade):  # type: ignore[arg-type]
+        incompativel = unidades.dimensao(unidade) is not unidades.dimensao(entrada.unidade)  # type: ignore[arg-type]
+        if incompativel or entrada.inteiro:
             raise erro_campo(
                 campo,
                 f"unidade {unidade!r} incompatível (esperado: {entrada.unidade})",

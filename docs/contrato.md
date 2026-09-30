@@ -351,6 +351,7 @@ O Desktop pode montar as telas a partir disso, com rótulo = `descricao` e uma l
 - `memoria.premissas` lista os padrões usados e os critérios aplicados, com a origem (ex.: `"fs_min_piping = 1,5 (padrão do motor)"`).
 - `memoria.conclusoes` traz o parecer em texto nos cálculos com critério (ex.: `"FS = 2,18 ≥ 1,5: atende ao critério contra areia movediça."`).
 - `memoria.tabelas` traz tabelas de apoio ao relatório, como o cálculo fatia a fatia: `{"titulo", "colunas": [{"nome", "unidade"}], "linhas": [[...]]}`.
+- `resultados[].rotulo` traz o texto dos resultados categóricos (ex.: classe do índice de demanda `"Moderadamente crítico"`, classe de risco `"B"`). Nos resultados numéricos, é `null`.
 
 **Status nos cálculos com critério de segurança:** cada resultado traz `status` e `limite`, e `status_calculo` é o pior deles. Para fatores de segurança:
 
@@ -390,6 +391,13 @@ Códigos: `CAMPO_AUSENTE`, `CAMPO_DESCONHECIDO`, `VALOR_INVALIDO`, `FORA_DO_INTE
 | `estabilidade.talude_bishop` | FS de Bishop simplificado, iterativo (m_α = cos α + sen α·tan φ'/FS), com tabela por fatia (critério `fs_min_talude`) | AP Nota 09 (NBR 11.682) |
 | `estabilidade.gravidade_deslizamento` | FS = f·(P − U)/E e peso mínimo P_mín = E·n/f + U (critério `fs_min_deslizamento`; f padrão 0,75) | AP Nota 10 (P·f ≥ E·n) |
 | `estabilidade.gravidade_resultante` | Resultante vertical, posição x_R, excentricidade e tensões nos pés de montante e jusante; status pelo terço médio | AP Nota 10 (categorias da resultante) |
+| `hidrologia.curva_cota_volume` | Volume entre curvas de nível Vn = (Sn + Sn−1)/2·Δh, volume total e, com `cota_consulta`, área e volume nessa cota (interpolação); tabela por curva | AP Nota 03 (exemplo: 5.823 m³) |
+| `hidrologia.volume_secoes` | V = Σ Aᵢ·dᵢ a partir da tabela `secoes` | AP Nota 03 |
+| `hidrologia.vazao_medida` | Tempo médio das repetições e Q = Volume/Tempo médio | AP Nota 02 (vazão de base) |
+| `hidrologia.metodo_racional` | Q = C·i·A/360 (i em mm/h, A em ha); AVISO se A > 200 ha (fora do domínio do método) | AP Nota 04 |
+| `hidrologia.periodo_retorno` | Tr = 1/[1 − (1 − R)^(1/n)]; R aceita `%` | AP Nota 06 (Tr ≈ 99.500 e 4.480 anos) |
+| `hidrologia.indice_demanda` | Qref = Qesp·AD e ID = Qconsumo/Qref·100, com `rotulo` da classe: Normal (OK), Alerta (AVISO), Moderadamente crítico (ALERTA), Altamente crítico (CRITICO) | AP Nota 01 (outorga) |
+| `hidrologia.extravasor` | Relação capacidade/vazão de projeto e folga; CRITICO se a capacidade for menor que a vazão de projeto | AP Nota 02 |
 
 **Convenções do M5:**
 - As fatias são informadas prontas (largura, peso, α, c', φ', u). A busca automática do círculo crítico fica para uma etapa futura.

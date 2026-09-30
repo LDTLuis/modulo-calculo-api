@@ -68,7 +68,8 @@ src/damiq_calc/
 ├── monitoramento/  # M2: regras (limites, taxa, z-score, travado), avaliação por episódios
 ├── hidrostatica/   # M3: pressão, piezômetro, cargas na rede de fluxo, empuxo, subpressão
 ├── percolacao/     # M4: Darcy, vazão pela rede de fluxo, piping (FS), filtros de Terzaghi
-└── estabilidade/   # M5: taludes (Fellenius, Bishop) e gravidade (escorregamento, terço médio)
+├── estabilidade/   # M5: taludes (Fellenius, Bishop) e gravidade (escorregamento, terço médio)
+└── hidrologia/     # M6: cota–área–volume, vazões, Método Racional, Tr, índice de demanda, extravasor
 # core/calculo.py: entradas, memória de cálculo e registro dos cálculos; catalogo.py: índice
 ```
 
