@@ -415,6 +415,11 @@ Códigos: `CAMPO_AUSENTE`, `CAMPO_DESCONHECIDO`, `VALOR_INVALIDO`, `FORA_DO_INTE
 | `classificacao.risco` | CRI = CT + EC + PS e categoria (item de EC = 10 → ALTO automático, CRITICO); categoria do DPA; classe A–D pela matriz da apostila (Alto: A B C · Médio: A C D · Baixo: A D D); periodicidade da RPSB (A 5, B 7, C 10, D 12 anos) | AP Nota 08 (Res. CNRH 143/2012) |
 | `emergencia.nivel_resposta` | Nível de resposta do PAE a partir da severidade (0–3): `rotulo` "Nível 2 – amarelo", situação e ações em `memoria.conclusoes` | AP Nota 07 (art. 27); PAE João Leite |
 | `emergencia.zas` | Extensão da ZAS = mín(10 km; distância alcançada pela onda em 30 min), a partir da tabela `secoes` (distância × tempo de chegada) do estudo de ruptura; AVISO se o estudo não alcança 30 min antes de 10 km | PAE João Leite (critério ANA) |
+| `opcionais.vertedor_retangular` | [LIT] Q = C·L·H^1,5 (Francis; C padrão 1,838 SI) | Literatura técnica |
+| `opcionais.vertedor_triangular` | [LIT] Q = C·H^2,5 (Thomson 90°; C padrão 1,4 SI), para medidores de vazão de drenagem | Literatura técnica |
+| `opcionais.evapotranspiracao_fao56` | [LIT] ET0 pelo Penman-Monteith FAO-56, passo diário (mm/dia) | FAO-56 (Exemplo 18: ≈ 3,9 mm/dia) |
+| `opcionais.balanco_hidrico` | [LIT] Qevap = E·A, ΔV = (Qin − Qout − Qevap − Qperdas)·Δt e volume final (ALERTA se o reservatório esvazia) | Literatura técnica |
+| `opcionais.pico_ruptura_froehlich` | [LIT] Qp = 0,607·Vw^0,295·hw^1,24, **estimativa preliminar** (o PAE usa HEC-RAS) | Froehlich (1995) |
 
 **Convenções do M5:**
 - As fatias são informadas prontas (largura, peso, α, c', φ', u). A busca automática do círculo crítico fica para uma etapa futura.
