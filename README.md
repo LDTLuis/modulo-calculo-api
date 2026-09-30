@@ -71,7 +71,8 @@ src/damiq_calc/
 ├── estabilidade/   # M5: taludes (Fellenius, Bishop) e gravidade (escorregamento, terço médio)
 ├── hidrologia/     # M6: cota–área–volume, vazões, Método Racional, Tr, índice de demanda, extravasor
 ├── geometria/      # M7: seção do maciço, crista e taludes, volume de terra, borda livre
-└── classificacao/  # M8: enquadramento PNSB/SEMAD, CRI, DPA, matriz A–D, periodicidade da RPSB
+├── classificacao/  # M8: enquadramento PNSB/SEMAD, CRI, DPA, matriz A–D, periodicidade da RPSB
+└── emergencia/     # M9: nível de resposta do PAE (0–3, verde/amarelo/vermelho) e ZAS
 # core/calculo.py: entradas, memória de cálculo e registro dos cálculos; catalogo.py: índice
 ```
 

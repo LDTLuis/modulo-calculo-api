@@ -11,6 +11,7 @@ from collections.abc import Callable, Mapping
 
 from damiq_calc import __version__, catalogo
 from damiq_calc.core.resultado import severidade_maxima
+from damiq_calc.emergencia import nivel_de_resposta
 from damiq_calc.medicoes import Lacuna, Medicao, detectar_lacunas, validar_lote
 from damiq_calc.monitoramento import avaliar
 
@@ -130,6 +131,7 @@ def _op_processar_lote(requisicao: Mapping) -> dict:
     resposta["monitoramento"] = {
         "status_barragem": monitoramento.status_barragem.name,
         "status_dados": monitoramento.status_dados.name,
+        "nivel_resposta": nivel_de_resposta(monitoramento.status_barragem).para_dict(),
         "sensores": {s: sit.para_dict() for s, sit in monitoramento.sensores.items()},
     }
     resposta["alertas"] = [a.para_dict() for a in monitoramento.alertas]
