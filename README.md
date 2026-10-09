@@ -85,6 +85,8 @@ src/damiq_calc/
 
 Decisões iniciais do back do Desktop e guia de integração com o motor: [docs/desktop/decisoes-back-desktop.md](docs/desktop/decisoes-back-desktop.md).
 
+Convenção de nomes dos repositórios do DAMIQ (Desktop, Central, motor): [docs/repositorios.md](docs/repositorios.md).
+
 ## Fluxo de trabalho
 
 - Versão do pacote: `damiq_calc.__version__` (única fonte; ver [CHANGELOG.md](CHANGELOG.md)). Uma tag `vX.Y.Z` na `main` dispara o workflow [release.yml](.github/workflows/release.yml), que confere a versão, roda os testes e publica a release com o wheel.
