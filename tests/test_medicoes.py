@@ -139,6 +139,26 @@ def test_detectar_lacunas():
     assert lac.duracao == timedelta(hours=4)
 
 
+@pytest.mark.parametrize(("minutos", "ha_lacuna"), [(89, False), (90, False), (91, True)])
+def test_lacuna_no_limite_da_tolerancia(minutos, ha_lacuna):
+    """Frequência de 1 h com fator 1,5: há lacuna só quando o intervalo passa de 90 min."""
+    inicio = datetime(2026, 9, 30, 8, 0, tzinfo=BRT)
+    r = validar([registro(timestamp=inicio.isoformat()),
+                 registro(timestamp=(inicio + timedelta(minutes=minutos)).isoformat())])
+    assert bool(detectar_lacunas(r.medicoes, {"PZ-01": timedelta(hours=1)})) is ha_lacuna
+
+
+@pytest.mark.parametrize(("segundos", "aceita"), [(299, True), (300, True), (301, False)])
+def test_horario_futuro_no_limite_da_tolerancia(segundos, aceita):
+    """Tolerância padrão de 5 min para relógios de coletores adiantados: 300 s passam, 301 s não."""
+    r = validar([registro(timestamp=(AGORA + timedelta(seconds=segundos)).isoformat())])
+    if aceita:
+        assert r.rejeicoes == []
+    else:
+        [rej] = r.rejeicoes
+        assert rej.codigo is CodigoRejeicao.TIMESTAMP_FUTURO
+
+
 def test_lacunas_ignora_sensor_sem_frequencia():
     r = validar([registro(timestamp="2026-09-30T00:00:00-03:00"), registro(timestamp="2026-09-30T09:00:00-03:00")])
     assert detectar_lacunas(r.medicoes, {}) == []
