@@ -93,6 +93,13 @@ def test_metodo_racional_fora_do_dominio():
     assert (q.severidade, q.limite) == (Severidade.AVISO, 200)
 
 
+@pytest.mark.parametrize(("area_ha", "severidade"), [(199.99, Severidade.OK), (200, Severidade.OK), (200.01, Severidade.AVISO)])
+def test_metodo_racional_no_limite_do_dominio(area_ha, severidade):
+    """O domínio do Método Racional vai até 200 ha, inclusive (AP, Nota 04)."""
+    ex = executar("hidrologia.metodo_racional", {"coeficiente_escoamento": 0.5, "intensidade": 100, "area": area_ha})
+    assert por_nome(ex)["vazao"].severidade is severidade
+
+
 @pytest.mark.parametrize(
     ("risco", "esperado"),
     [
